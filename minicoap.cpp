@@ -127,10 +127,21 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
         }
     }
     if (x>-1) {
-        observers[x].obs_tick=1;
-        observers[x].inpkt=*inpkt;
-        observers[x].cliaddr.socket=cliaddr;
-        observers[x].cliaddr.available=false;
+        if (inpkt) {
+            observers[x].obs_tick=1;
+            observers[x].inpkt=*inpkt;
+            observers[x].cliaddr.socket=cliaddr;
+            observers[x].cliaddr.available=false;
+        }
+    }
+    return x;
+}
+
+int MiniCoAP::removeObserver()
+{
+    int x = addObserver(NULL);
+    if (x>-1) {
+        observers[x].cliaddr.available=true;
     }
     return x;
 }
@@ -151,7 +162,7 @@ int MiniCoAP::sendUDP()
 #ifdef ARDUINO
     return -0 // TODO: Arduino
 #else
-    return sendto(fd, buf, rsplen, 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr));
+    return sendto(fd, buf, rsplen, 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr)); // FIXME: not -1 when host is unreachable
 #endif // ARDUINO
 
 }
@@ -178,7 +189,11 @@ int MiniCoAP::answer(coap_packet_t* pkt)
 #ifdef DEBUG
         coap_dumpPacket(&rsppkt);
 #endif
-        sendUDP();
+        int sendedCount = sendUDP();
+        if (sendedCount==-1) {
+            // TODO: debug
+            removeObserver();
+        }
     }
     return 0; // TODO:
 }
@@ -238,7 +253,7 @@ int MiniCoAP::coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outp
 
         }
         else if ((observeOption->buf.len == 1) && (*observeOption->buf.p==1)) {
-            // TODO: removeObserver
+            removeObserver();
         }
     }
 
