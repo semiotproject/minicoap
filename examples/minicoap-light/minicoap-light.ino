@@ -40,7 +40,7 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 
 void setup() {
     coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
-    // coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
+    coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
 }
 
 // TODO: listen for hw button
@@ -50,7 +50,7 @@ void loop() {
     {
         coap.answerForObservation(i);
         coap.answerForIncomingRequest();
-        if (i<MAX_OBSERVATIONS_COUNT-1) {
+        if (i<MAX_OBSERVATIONS_COUNT-2) {
             i++;
         }
         else {

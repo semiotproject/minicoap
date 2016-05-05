@@ -34,15 +34,18 @@ MiniCoAP::MiniCoAP(unsigned int coapPort)
 
 int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool* obs_changed, const char *core_attr)
 {
-    // FIXME: count index
-    endpoints[0].method=method;
-    endpoints[0].handler=handler;
-    endpoints[0].path=path;
-    endpoints[0].core_attr=core_attr;
-    endpoints[0].obs_changed=obs_changed;
-    build_rsp();
-    // endpoint_setup();
-    return 1; // TODO
+    if (endpointsCount+1<=MAX_ENDPOINTS_COUNT) {
+        endpoints[endpointsCount].method=method;
+        endpoints[endpointsCount].handler=handler;
+        endpoints[endpointsCount].path=path;
+        endpoints[endpointsCount].core_attr=core_attr;
+        endpoints[endpointsCount].obs_changed=obs_changed;
+        endpointsCount++;
+        // build_rsp(); // TODO:
+        // endpoint_setup();
+        return 1;
+    }
+    return 0;
 }
 
 void MiniCoAP::answerForIncomingRequest()
@@ -70,22 +73,32 @@ void MiniCoAP::answerForIncomingRequest()
 
 void MiniCoAP::answerForObservation(unsigned int index)
 {
-    for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
-        if (coap_compare_uri_path_opt(&observers[index].inpkt,endpoints[i].path)) {
-            if (endpoints[i].obs_changed) {
-                if (*endpoints[i].obs_changed) {
-                    answer(&observers[index].inpkt);
-                    observers[index].obs_tick++; // FIXME
-                    *endpoints[i].obs_changed=false; // FIXME
+    if (index<MAX_OBSERVATIONS_COUNT) {
+        if (!observers[index].cliaddr.available) {
+            int enpoint_index = -1;
+            for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
+                if (coap_compare_uri_path_opt(&observers[index].inpkt,endpoints[i].path)) {
+                    if (endpoints[i].obs_changed) {
+                        if (*endpoints[i].obs_changed) {
+                            // TODO: fill cliaddr
+                            coap_client_socket_t *clisock = &observers[index].cliaddr;
+                            // TODO: different platforms:
+                            cliaddr.sin_family = clisock->socket.sin_family;
+                            cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
+                            cliaddr.sin_port = clisock->socket.sin_port;
+                            answer(&observers[index].inpkt); // TODO: remove obs if not answer
+                            // TODO: if answer:
+                            observers[index].obs_tick++;
+                            enpoint_index = i;
+                        }
+                    }
                 }
+            }
+            if (enpoint_index>-1) {
+                *endpoints[enpoint_index].obs_changed=false;
             }
         }
     }
-    // TODO:
-    // if index == last non-NULL
-    // *obs_changed = false
-    // obs_tick ++
-    // TODO: save endpoints count
 }
 
 void MiniCoAP::answerForObservations()
@@ -129,7 +142,6 @@ int MiniCoAP::receiveUDP()
 #else
     socklen_t len = sizeof(cliaddr);
     ssize_t x = recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&cliaddr, &len); // TODO: save rsplen here
-    printf("x=%zd\n",x);
     return x;
 #endif // ARDUINO
 }
@@ -144,7 +156,7 @@ int MiniCoAP::sendUDP()
 
 }
 
-void MiniCoAP::answer(coap_packet_t* pkt)
+int MiniCoAP::answer(coap_packet_t* pkt)
 {
     int rc;
     rsplen = sizeof(buf); // FIXME: possibly could ruin everything
@@ -168,6 +180,7 @@ void MiniCoAP::answer(coap_packet_t* pkt)
 #endif
         sendUDP();
     }
+    return 0; // TODO:
 }
 
 int MiniCoAP::coap_parse(coap_packet_t *pkt, const uint8_t *buf, size_t buflen)

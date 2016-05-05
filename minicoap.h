@@ -33,10 +33,14 @@ public:
 #endif // #ifdef MAX_OBSERVATIONS_COUNT
 
 private:
+#ifdef MAX_OBSERVATIONS_COUNT
     int addObserver(const coap_packet_t *inpkt);
+    // TODO: removeObserver
+#endif // MAX_OBSERVATIONS_COUNT
     int receiveUDP();
     int sendUDP();
-    void answer(coap_packet_t *pkt);
+    int answer(coap_packet_t *pkt);
+    unsigned int endpointsCount = 0;
     coap_endpoint_t endpoints[MAX_ENDPOINTS_COUNT];
 
     unsigned int port = PORT;
@@ -76,7 +80,6 @@ private:
 
 #ifdef MAX_OBSERVATIONS_COUNT
     coap_observer_t observers[MAX_OBSERVATIONS_COUNT];
-    // void find_observers(const coap_packet_t *inpkt,);
 #endif // MAX_OBSERVATIONS_COUNT
 };
 
