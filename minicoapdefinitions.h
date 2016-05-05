@@ -166,7 +166,7 @@ typedef struct
 {
     // FIXME: different for platforms
     struct sockaddr_in socket;
-    bool available;
+    bool available = true;
 } coap_client_socket_t;
 
 typedef struct

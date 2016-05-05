@@ -3,7 +3,8 @@
 static MiniCoAP coap(5683);
 
 // TODO: get rid of static content argument?
-static uint8_t light = 0;
+static uint8_t light = 42;
+bool lightChanged = true;
 
 void turnOffLight() {
     light = 1;
@@ -38,22 +39,25 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 }
 
 void setup() {
-    coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight);
-    coap.addEndpoint(COAP_METHOD_GET,putLight,&pathLight);
+    coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
+    // coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
 }
 
-// TODO: listen for button
+// TODO: listen for hw button
 void loop() {
     int i = 0;
     while(1)
     {
         coap.answerForObservation(i);
         coap.answerForIncomingRequest();
-        if (i<MAX_OBSERVATIONS_COUNT) {
+        if (i<MAX_OBSERVATIONS_COUNT-1) {
             i++;
         }
         else {
             i=0;
+            // FIXME: get rid of
+            light++;
+            lightChanged=true;
         }
     }
 }

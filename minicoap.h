@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <strings.h>
 #endif
 
@@ -24,7 +25,7 @@ class MiniCoAP
 public:
     MiniCoAP(unsigned int coapPort);
     int coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outpkt, uint8_t *content, size_t content_len, coap_responsecode_t rspcode, coap_content_type_t content_type);
-    int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, const char *core_attr = NULL, bool *obs_changed = NULL);
+    int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool *obs_changed = NULL, const char *core_attr = NULL);
     void answerForIncomingRequest();
 #ifdef MAX_OBSERVATIONS_COUNT
     void answerForObservation(unsigned int index);

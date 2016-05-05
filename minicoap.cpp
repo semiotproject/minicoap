@@ -5,11 +5,14 @@ MiniCoAP::MiniCoAP(unsigned int coapPort)
     port = coapPort;
     scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 
+    // TODO: different platforms
 #ifdef IPV6
     fd = socket(AF_INET6,SOCK_DGRAM,0);
 #else /* IPV6 */
     fd = socket(AF_INET,SOCK_DGRAM,0);
 #endif /* IPV6 */
+
+    fcntl(fd, F_SETFL, O_NONBLOCK);
 
     bzero(&servaddr,sizeof(servaddr));
 #ifdef IPV6
@@ -22,13 +25,14 @@ MiniCoAP::MiniCoAP(unsigned int coapPort)
     servaddr.sin_port = htons(port);
 #endif /* IPV6 */
     int bind_result = ::bind(fd,(struct sockaddr *)&servaddr, sizeof(servaddr));
+
 #ifdef DEBUG
-    printf("%d\n",bind_result);
+    printf("MiniCOAP: bind socket result: %d\n",bind_result);
 #endif
     endpoint_setup();
 }
 
-int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, const char *core_attr, bool* obs_changed)
+int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool* obs_changed, const char *core_attr)
 {
     // FIXME: count index
     endpoints[0].method=method;
@@ -43,8 +47,9 @@ int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, cons
 
 void MiniCoAP::answerForIncomingRequest()
 {
-    rsplen = receiveUDP(); // filling buf
-    if (rsplen>0) {
+    int x = receiveUDP();
+    if (x>0) { // filling buf
+        rsplen=x; // FIXME: could overflow?
 #ifdef DEBUG
         printf("Received %d bytes:",rsplen);
         coap_dump(buf, rsplen, true);
@@ -123,7 +128,9 @@ int MiniCoAP::receiveUDP()
     return -0 // TODO: Arduino
 #else
     socklen_t len = sizeof(cliaddr);
-    return recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&cliaddr, &len); // TODO: save rsplen here
+    ssize_t x = recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&cliaddr, &len); // TODO: save rsplen here
+    printf("x=%zd\n",x);
+    return x;
 #endif // ARDUINO
 }
 
@@ -382,21 +389,23 @@ int MiniCoAP::coap_parseOption(coap_option_t *option, uint16_t *running_delta, c
 
 int MiniCoAP::coap_compare_uri_path_opt(const coap_packet_t *inpkt, const coap_endpoint_path_t *path)
 {
-    uint8_t count;
-    const coap_option_t *opt;
-    if (NULL != (opt = coap_findOptions(inpkt, COAP_OPTION_URI_PATH, &count)))
-    {
-        if (count != path->count)
-            return 0;
-        for (int i=0;i<count;i++)
+    if (path) {
+        uint8_t count;
+        const coap_option_t *opt;
+        if (NULL != (opt = coap_findOptions(inpkt, COAP_OPTION_URI_PATH, &count)))
         {
-            if (opt[i].buf.len != strlen(path->elems[i]))
+            if (count != path->count)
                 return 0;
-            if (0 != memcmp(path->elems[i], opt[i].buf.p, opt[i].buf.len))
-                return 0;
+            for (int i=0;i<count;i++)
+            {
+                if (opt[i].buf.len != strlen(path->elems[i]))
+                    return 0;
+                if (0 != memcmp(path->elems[i], opt[i].buf.p, opt[i].buf.len))
+                    return 0;
+            }
+            // match!
+            return 1;
         }
-        // match!
-        return 1;
     }
     return 0;
 }
