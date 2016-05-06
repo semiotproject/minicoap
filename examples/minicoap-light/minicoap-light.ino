@@ -10,23 +10,29 @@ static uint8_t light = 1;
 bool lightChanged = true;
 
 void turnOffLight() {
-    light = 1;
+    if (light=="1") {
+        light = "0";
+        lightChanged = true;
 #ifdef ARDUINO
-    digitalWrite(LED, LOW);
+        digitalWrite(LED, LOW);
 #endif // ARDUINO
 #ifdef RASPBERRY
-    digitalWrite(LED, LOW);
+        digitalWrite(LED, LOW);
 #endif // RASPBERRY
+    }
 }
 
 void turnOnLight() {
-    light = 0;
+    if (light=="0") {
+        light = "1";
+        lightChanged = true;
 #ifdef ARDUINO
-    digitalWrite(LED, HIGH);
+        digitalWrite(LED, HIGH);
 #endif // ARDUINO
 #ifdef RASPBERRY
-    digitalWrite(LED, HIGH);
+        digitalWrite(LED, HIGH);
 #endif // RASPBERRY
+    }
 }
 
 static const coap_endpoint_path_t pathLight = {1, {"light"}};
