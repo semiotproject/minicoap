@@ -10,7 +10,6 @@ IF(WiringPi)
   IF(WIRINGPI_LIBRARY)
     message(STATUS "WiringPi library was found in ${WIRINGPI_LIBRARY}...")
     add_definitions(-DWITH_GPIO)
-    target_link_libraries(minicoap ${WIRINGPI_LIBRARY})
   else()
     message(STATUS "==== WiringPi library not found. GPIO support disabled.")
   message(STATUS "==== (Please follow http://wiringpi.com/download-and-install/ if you want to use GPIO.)")
@@ -39,3 +38,4 @@ set_source_files_properties(${PROJECT_SOURCE_DIR}/examples/minicoap-light/minico
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(minicoap ${WIRINGPI_LIBRARY})
