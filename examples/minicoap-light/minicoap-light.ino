@@ -6,13 +6,15 @@
 static MiniCoAP coap(5683);
 
 // TODO: get rid of static content argument?
-static uint8_t light = 1;
+static unsigned char light = '1';
 bool lightChanged = true;
 
 void turnOffLight() {
-    if (light==1) {
-        light = 0;
+    if (light=='1') {
+        printf("changing light:\n");
+        light = '0';
         lightChanged = true;
+        printf("%d\n",light);
 #ifdef ARDUINO
         digitalWrite(LED, LOW);
 #endif // ARDUINO
@@ -23,8 +25,8 @@ void turnOffLight() {
 }
 
 void turnOnLight() {
-    if (light==0) {
-        light = 1;
+    if (light=='0') {
+        light = '1';
         lightChanged = true;
 #ifdef ARDUINO
         digitalWrite(LED, HIGH);
@@ -37,19 +39,16 @@ void turnOnLight() {
 
 static const coap_endpoint_path_t pathLight = {1, {"light"}};
 int getLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
-    uint8_t ans = '0';
-    if (light) {
-        ans = '1';
-    }
-    return coap.coap_make_response(inpkt, outpkt, &ans, sizeof(ans), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
+    return coap.coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
 int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     if (inpkt->payload.len == 1) {
-        if (inpkt->payload.p[0] == '1') {
+        char pld = inpkt->payload.p[0];
+        if (pld == '1') {
             turnOnLight();
         }
-        else if (inpkt->payload.p[0] == '0'){
+        else if (pld == '0'){
             turnOffLight();
         }
         return coap.coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CHANGED, COAP_CONTENTTYPE_TEXT_PLAIN);
@@ -61,11 +60,11 @@ void setup() {
 #ifdef RASPBERRY
     wiringPiSetup();
     pinMode(LED, OUTPUT);
-    digitalWrite(LED, light);
+    digitalWrite(LED, HIGH); // FIXME: according to light
 #endif // RASPBERRY
 #ifdef ARDUINO
     pinMode(LED, OUTPUT);
-    digitalWrite(LED, light);
+    digitalWrite(LED, HIGH); // FIXME: according to light
 #endif // ARDUINO
     coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
     coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
