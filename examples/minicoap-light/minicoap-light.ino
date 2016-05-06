@@ -10,8 +10,8 @@ static uint8_t light = 1;
 bool lightChanged = true;
 
 void turnOffLight() {
-    if (light=="1") {
-        light = "0";
+    if (light==1) {
+        light = 0;
         lightChanged = true;
 #ifdef ARDUINO
         digitalWrite(LED, LOW);
@@ -23,8 +23,8 @@ void turnOffLight() {
 }
 
 void turnOnLight() {
-    if (light=="0") {
-        light = "1";
+    if (light==0) {
+        light = 1;
         lightChanged = true;
 #ifdef ARDUINO
         digitalWrite(LED, HIGH);
@@ -37,7 +37,11 @@ void turnOnLight() {
 
 static const coap_endpoint_path_t pathLight = {1, {"light"}};
 int getLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
-    return coap.coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
+    uint8_t ans = '0';
+    if (light) {
+        ans = '1';
+    }
+    return coap.coap_make_response(inpkt, outpkt, &ans, sizeof(ans), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
 int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
