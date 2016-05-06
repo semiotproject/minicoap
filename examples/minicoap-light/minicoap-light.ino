@@ -11,10 +11,8 @@ bool lightChanged = true;
 
 void turnOffLight() {
     if (light=='1') {
-        printf("changing light:\n");
         light = '0';
         lightChanged = true;
-        printf("%d\n",light);
 #ifdef ARDUINO
         digitalWrite(LED, LOW);
 #endif // ARDUINO
