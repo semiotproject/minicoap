@@ -13,18 +13,20 @@ void turnOffLight() {
     light = 1;
 #ifdef ARDUINO
     digitalWrite(LED, LOW);
-#elif RASPBERRY
-    digitalWrite(LED, LOW);
 #endif // ARDUINO
+#ifdef RASPBERRY
+    digitalWrite(LED, LOW);
+#endif // RASPBERRY
 }
 
 void turnOnLight() {
     light = 0;
 #ifdef ARDUINO
     digitalWrite(LED, HIGH);
-#elif RASPBERRY
-    digitalWrite(LED, HIGH);
 #endif // ARDUINO
+#ifdef RASPBERRY
+    digitalWrite(LED, HIGH);
+#endif // RASPBERRY
 }
 
 static const coap_endpoint_path_t pathLight = {1, {"light"}};
@@ -50,7 +52,8 @@ void setup() {
     wiringPiSetup();
     pinMode(LED, OUTPUT);
     digitalWrite(LED, light);
-#elif ARDUINO
+#endif // RASPBERRY
+#ifdef ARDUINO
     pinMode(LED, OUTPUT);
     digitalWrite(LED, light);
 #endif // ARDUINO
