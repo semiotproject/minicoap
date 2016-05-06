@@ -59,7 +59,7 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 
 void buttonInterrupt() {
     if (light=='1') {
-        turnOnLight();
+        turnOffLight();
     }
     else if (light=='0') {
         turnOnLight();
