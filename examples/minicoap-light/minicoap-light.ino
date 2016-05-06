@@ -1,6 +1,6 @@
 #include "minicoap.h"
 #ifdef RPI2
-// #include <wiringPi.h>
+#include <wiringPi.h>
 #endif // RPI2
 
 static MiniCoAP coap(5683);
