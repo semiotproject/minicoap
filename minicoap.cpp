@@ -86,9 +86,8 @@ void MiniCoAP::answerForObservation(unsigned int index)
                             cliaddr.sin_family = clisock->socket.sin_family;
                             cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
                             cliaddr.sin_port = clisock->socket.sin_port;
+                            observers[index].obs_tick++; // TODO: if answer:
                             answer(&observers[index].inpkt); // TODO: remove obs if not answer
-                            // TODO: if answer:
-                            observers[index].obs_tick++;
                             enpoint_index = i;
                         }
                     }

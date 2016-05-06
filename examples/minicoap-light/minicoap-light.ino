@@ -1,7 +1,7 @@
 #include "minicoap.h"
-#ifdef RASPBERRY
-#include <wiringPi.h>
-#endif // RASPBERRY
+#ifdef RPI2
+// #include <wiringPi.h>
+#endif // RPI2
 
 static MiniCoAP coap(5683);
 
@@ -18,12 +18,13 @@ void turnOffLight() {
 #ifdef ARDUINO
         digitalWrite(LED, LOW);
 #endif // ARDUINO
-#ifdef RASPBERRY
+#ifdef RPI2
         digitalWrite(LED, LOW);
-#endif // RASPBERRY
+#endif // RPI2
     }
 }
 
+// FIXME: too much for interrupt:
 void turnOnLight() {
     if (light=='0') {
         light = '1';
@@ -31,9 +32,9 @@ void turnOnLight() {
 #ifdef ARDUINO
         digitalWrite(LED, HIGH);
 #endif // ARDUINO
-#ifdef RASPBERRY
+#ifdef RPI2
         digitalWrite(LED, HIGH);
-#endif // RASPBERRY
+#endif // RPI2
     }
 }
 
@@ -56,12 +57,25 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     return coap.coap_make_response(inpkt, outpkt, NULL, 0, COAP_RSPCODE_BAD_REQUEST, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
+void buttonInterrupt() {
+    if (light=='1') {
+        turnOnLight();
+    }
+    else if (light=='0') {
+        turnOnLight();
+    }
+}
+
 void setup() {
-#ifdef RASPBERRY
+#ifdef RPI2
     wiringPiSetup();
     pinMode(LED, OUTPUT);
     digitalWrite(LED, HIGH); // FIXME: according to light
-#endif // RASPBERRY
+#endif // RPI2
+#ifdef BUTTON // RPI2 BUTTON
+    pinMode(BUTTON, INPUT);
+    wiringPiISR(BUTTON, INT_EDGE_BOTH, &buttonInterrupt); // TODO: handle error
+#endif
 #ifdef ARDUINO
     pinMode(LED, OUTPUT);
     digitalWrite(LED, HIGH); // FIXME: according to light
