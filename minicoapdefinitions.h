@@ -1,9 +1,12 @@
 #ifndef MINICOAPDEFINITIONS_H
 #define MINICOAPDEFINITIONS_H
 
+#define RASPBERRY
+
 #define DEBUG // TODO: Arduino Serial debug
 
-#define LED 1 // GPIO 1
+#define LED 2 // GPIO 2 PIN 13
+// ESP8266: LED 1 // GPIO 1
 
 // commnent to remove subsribtions support
 #define MAX_ENDPOINTS_COUNT 10

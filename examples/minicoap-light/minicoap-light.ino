@@ -1,14 +1,19 @@
 #include "minicoap.h"
+#ifdef RASPBERRY
+#include <wiringPi.h>
+#endif // RASPBERRY
 
 static MiniCoAP coap(5683);
 
 // TODO: get rid of static content argument?
-static uint8_t light = 42;
+static uint8_t light = 1;
 bool lightChanged = true;
 
 void turnOffLight() {
     light = 1;
 #ifdef ARDUINO
+    digitalWrite(LED, LOW);
+#elif RASPBERRY
     digitalWrite(LED, LOW);
 #endif // ARDUINO
 }
@@ -16,6 +21,8 @@ void turnOffLight() {
 void turnOnLight() {
     light = 0;
 #ifdef ARDUINO
+    digitalWrite(LED, HIGH);
+#elif RASPBERRY
     digitalWrite(LED, HIGH);
 #endif // ARDUINO
 }
@@ -39,6 +46,14 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 }
 
 void setup() {
+#ifdef RASPBERRY
+    wiringPiSetup();
+    pinMode(LED, OUTPUT);
+    digitalWrite(LED, light);
+#elif ARDUINO
+    pinMode(LED, OUTPUT);
+    digitalWrite(LED, light);
+#endif // ARDUINO
     coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
     coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
 }
@@ -56,8 +71,8 @@ void loop() {
         else {
             i=0;
             // FIXME: get rid of
-            light++;
-            lightChanged=true;
+            // light++;
+            // lightChanged=true;
         }
     }
 }
