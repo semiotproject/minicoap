@@ -129,6 +129,8 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
         if (inpkt) {
             observers[x].obs_tick=1;
             observers[x].inpkt=*inpkt;
+            observers[x].inpkt.tok.p = observers[x].scratch_raw;
+            memcpy(observers[x].scratch_raw,inpkt->tok.p,inpkt->tok.len);
             observers[x].cliaddr.socket=cliaddr;
             observers[x].cliaddr.available=false;
         }

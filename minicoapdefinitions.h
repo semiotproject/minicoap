@@ -178,6 +178,7 @@ typedef struct
     coap_client_socket_t cliaddr;
     coap_packet_t inpkt;
     unsigned char obs_tick; // TODO: change size to 3 bytes (array of char)
+    uint8_t scratch_raw[4096];
 } coap_observer_t;
 #endif
 
