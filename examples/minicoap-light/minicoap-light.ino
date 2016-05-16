@@ -8,6 +8,7 @@ static MiniCoAP coap(5683);
 // TODO: get rid of static content argument?
 static unsigned char light = '1';
 bool lightChanged = true;
+bool needToSwitchTheLight = false;
 
 void turnOffLight() {
     if (light=='1') {
@@ -56,12 +57,7 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 }
 
 void buttonInterrupt() {
-    if (light=='1') {
-        turnOffLight();
-    }
-    else if (light=='0') {
-        turnOnLight();
-    }
+    needToSwitchTheLight = true;
 }
 
 void setup() {
@@ -87,6 +83,18 @@ void loop() {
     int i = 0;
     while(1)
     {
+        if (needToSwitchTheLight) {
+            if (light=='1') {
+                turnOffLight();
+            }
+            else if (light=='0') {
+                turnOnLight();
+            }
+            needToSwitchTheLight = false;
+        }
+        else if (needToSwitchTheLight==-1) {
+            turnOffLight();
+        }
         coap.answerForObservation(i);
         coap.answerForIncomingRequest();
         if (i<MAX_OBSERVATIONS_COUNT-2) {
