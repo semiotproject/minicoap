@@ -68,7 +68,7 @@ void setup() {
 #endif // RPI2
 #ifdef BUTTON // RPI2 BUTTON
     pinMode(BUTTON, INPUT);
-    wiringPiISR(BUTTON, INT_EDGE_BOTH, &buttonInterrupt); // TODO: handle error
+    // wiringPiISR(BUTTON, INT_EDGE_BOTH, &buttonInterrupt); // TODO: handle error
 #endif
 #ifdef ARDUINO
     pinMode(LED, OUTPUT);
@@ -83,15 +83,25 @@ void loop() {
     int i = 0;
     while(1)
     {
+        #ifdef RPI2
+        if (digitalRead(BUTTON)==HIGH) {
+            turnOnLight();
+        }
+        else if (digitalRead(BUTTON)==LOW) {
+            turnOffLight();
+        }
+        #endif
+        /*
         if (needToSwitchTheLight) {
             if (light=='1') {
                 turnOffLight();
             }
             else if (light=='0') {
-                turnOnLight();
+
             }
             needToSwitchTheLight = false;
         }
+        */
         coap.answerForObservation(i);
         coap.answerForIncomingRequest();
         if (i<MAX_OBSERVATIONS_COUNT-2) {
