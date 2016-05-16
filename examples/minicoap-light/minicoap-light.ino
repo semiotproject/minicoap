@@ -92,9 +92,6 @@ void loop() {
             }
             needToSwitchTheLight = false;
         }
-        else if (needToSwitchTheLight==-1) {
-            turnOffLight();
-        }
         coap.answerForObservation(i);
         coap.answerForIncomingRequest();
         if (i<MAX_OBSERVATIONS_COUNT-2) {
