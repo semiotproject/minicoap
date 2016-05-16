@@ -8,7 +8,6 @@ static MiniCoAP coap(5683);
 // TODO: get rid of static content argument?
 static unsigned char light = '1';
 bool lightChanged = true;
-bool needToSwitchTheLight = false;
 
 void turnOffLight() {
     if (light=='1') {
@@ -56,10 +55,6 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     return coap.coap_make_response(inpkt, outpkt, NULL, 0, COAP_RSPCODE_BAD_REQUEST, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
-void buttonInterrupt() {
-    needToSwitchTheLight = true;
-}
-
 void setup() {
 #ifdef RPI2
     wiringPiSetup();
@@ -68,7 +63,6 @@ void setup() {
 #endif // RPI2
 #ifdef BUTTON // RPI2 BUTTON
     pinMode(BUTTON, INPUT);
-    // wiringPiISR(BUTTON, INT_EDGE_BOTH, &buttonInterrupt); // TODO: handle error
 #endif
 #ifdef ARDUINO
     pinMode(LED, OUTPUT);
@@ -91,17 +85,6 @@ void loop() {
             turnOffLight();
         }
         #endif
-        /*
-        if (needToSwitchTheLight) {
-            if (light=='1') {
-                turnOffLight();
-            }
-            else if (light=='0') {
-
-            }
-            needToSwitchTheLight = false;
-        }
-        */
         coap.answerForObservation(i);
         coap.answerForIncomingRequest();
         if (i<MAX_OBSERVATIONS_COUNT-2) {
@@ -109,9 +92,6 @@ void loop() {
         }
         else {
             i=0;
-            // FIXME: get rid of
-            // light++;
-            // lightChanged=true;
         }
     }
 }
