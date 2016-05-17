@@ -99,10 +99,10 @@ void MiniCoAP::answerForObservation(unsigned int index)
 
 void MiniCoAP::answerForObservations()
 {
-    for(int i = 0; i<=MAX_OBSERVATIONS_COUNT; i++) {
+    for(int i = 0; i<MAX_OBSERVATIONS_COUNT; i++) {
         answerForObservation(i);
     }
-    for (int i = 0; i<=MAX_ENDPOINTS_COUNT; i++) {
+    for (int i = 0; i<MAX_ENDPOINTS_COUNT; i++) {
         *endpoints[i].obs_changed = false;
     }
 }
