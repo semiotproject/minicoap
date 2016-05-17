@@ -118,6 +118,7 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
                 uint8_t opt_count;
                 if (coap_findOptions(inpkt,COAP_OPTION_OBSERVE,&opt_count)) {
                     observers[i].inpkt.opts[opt_count].buf.len=0;
+                    memcpy(observers[i].inpkt.hdr.id,inpkt->tok.p,2); // so ugly
                 }
                 return i;
             }
