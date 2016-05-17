@@ -71,30 +71,42 @@ void MiniCoAP::answerForIncomingRequest()
     }
 }
 
+// FIXME: wrong logic:
 void MiniCoAP::answerForObservation(unsigned int index)
 {
     if (index<MAX_OBSERVATIONS_COUNT) {
         if (!observers[index].cliaddr.available) {
             int enpoint_index = -1;
+            int last_endpoint_index = -1;
             for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
                 if (coap_compare_uri_path_opt(&observers[index].inpkt,endpoints[i].path)) {
                     if (endpoints[i].obs_changed) {
                         if (*endpoints[i].obs_changed) {
-                            // TODO: fill cliaddr
-                            coap_client_socket_t *clisock = &observers[index].cliaddr;
-                            // TODO: different platforms:
-                            cliaddr.sin_family = clisock->socket.sin_family;
-                            cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
-                            cliaddr.sin_port = clisock->socket.sin_port;
-                            observers[index].obs_tick++; // TODO: if answer:
-                            answer(&observers[index].inpkt); // TODO: remove obs if not answer
-                            enpoint_index = i;
+                            if (!observers[index].obs_synced) {
+                                // TODO: fill cliaddr
+                                coap_client_socket_t *clisock = &observers[index].cliaddr;
+                                // TODO: different platforms:
+                                cliaddr.sin_family = clisock->socket.sin_family;
+                                cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
+                                cliaddr.sin_port = clisock->socket.sin_port;
+                                observers[index].obs_tick++; // TODO: if answer:
+                                answer(&observers[index].inpkt);
+                                // TODO: remove obs if not answer
+                                observers[index].obs_synced=true;
+                                if (enpoint_index==-1) {
+                                    enpoint_index = i;
+                                }
+                                last_endpoint_index = i;
+                            }
                         }
                     }
                 }
             }
             if (enpoint_index>-1) {
-                *endpoints[enpoint_index].obs_changed=false;
+                // everything synced:
+                if (enpoint_index==last_endpoint_index) {
+                    *endpoints[enpoint_index].obs_changed=false;
+                }
             }
         }
     }
