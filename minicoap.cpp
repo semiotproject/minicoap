@@ -115,6 +115,10 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
                     (observers[i].cliaddr.socket.sin_port==cliaddr.sin_port)) {
                 // updating token:
                 memcpy(observers[i].scratch_raw,inpkt->tok.p,inpkt->tok.len);
+                uint8_t opt_count;
+                if (coap_findOptions(inpkt,COAP_OPTION_OBSERVE,&opt_count)) {
+                    observers[i].inpkt.opts[opt_count].buf.len=0;
+                }
                 return i;
             }
         }
