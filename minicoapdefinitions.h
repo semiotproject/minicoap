@@ -3,9 +3,9 @@
 
 #define DEBUG // TODO: Arduino Serial debug
 
-#define RPI2 // Raspberry Pi 2
-#define LED 2 // GPIO 2 PIN 13 -- RPI2
-#define BUTTON 0 // GPIO 0 PIN 11 -- RPI2
+// #define RPI2 // Raspberry Pi 2
+// #define LED 2 // GPIO 2 PIN 13 -- RPI2
+// #define BUTTON 0 // GPIO 0 PIN 11 -- RPI2
 
 // ESP8266: LED 1 // GPIO 1
 

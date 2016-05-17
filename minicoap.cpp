@@ -103,7 +103,9 @@ void MiniCoAP::answerForObservations()
         answerForObservation(i);
     }
     for (int i = 0; i<MAX_ENDPOINTS_COUNT; i++) {
-        *endpoints[i].obs_changed = false;
+        if (endpoints[i].obs_changed) {
+            *endpoints[i].obs_changed = false;
+        }
     }
 }
 
