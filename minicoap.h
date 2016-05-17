@@ -28,12 +28,12 @@ public:
     int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool *obs_changed = NULL, const char *core_attr = NULL);
     void answerForIncomingRequest();
 #ifdef MAX_OBSERVATIONS_COUNT
-    void answerForObservation(unsigned int index);
     void answerForObservations();
 #endif // #ifdef MAX_OBSERVATIONS_COUNT
 
 private:
 #ifdef MAX_OBSERVATIONS_COUNT
+    void answerForObservation(unsigned int index);
     int addObserver(const coap_packet_t *inpkt);
     // TODO: removeObserver
     int removeObserver();

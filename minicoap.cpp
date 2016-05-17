@@ -75,22 +75,19 @@ void MiniCoAP::answerForObservation(unsigned int index)
 {
     if (index<MAX_OBSERVATIONS_COUNT) {
         if (!observers[index].cliaddr.available) {
-            for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
-                // FIXME: propably should save this index in obs
-                if (coap_compare_uri_path_opt(&observers[index].inpkt,endpoints[i].path)) {
-                    if (endpoints[i].obs_changed) {
-                        if (*endpoints[i].obs_changed) {
-                            // TODO: fill cliaddr
-                            coap_client_socket_t *clisock = &observers[index].cliaddr;
-                            // TODO: different platforms:
-                            cliaddr.sin_family = clisock->socket.sin_family;
-                            cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
-                            cliaddr.sin_port = clisock->socket.sin_port;
-                            observers[index].obs_tick++; // TODO: if answer:
-                            answer(&observers[index].inpkt);
-                            // TODO: remove obs if not answer
-                        }
-                    }
+            int i = observers[index].endpoint_path_index;
+            if (endpoints[i].obs_changed) {
+                if (*endpoints[i].obs_changed) {
+                    // TODO: fill cliaddr
+                    coap_client_socket_t *clisock = &observers[index].cliaddr;
+                    // TODO: different platforms:
+                    cliaddr.sin_family = clisock->socket.sin_family;
+                    cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
+                    cliaddr.sin_port = clisock->socket.sin_port;
+                    observers[index].obs_tick++; // TODO: if answer:
+                    answer(&observers[index].inpkt);
+                    // TODO: remove obs if not answer
+                    return;
                 }
             }
         }
@@ -135,6 +132,12 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
             memcpy(observers[x].scratch_raw,inpkt->tok.p,inpkt->tok.len);
             observers[x].cliaddr.socket=cliaddr;
             observers[x].cliaddr.available=false;
+            for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
+                if (coap_compare_uri_path_opt(&observers[x].inpkt,endpoints[i].path)) {
+                    observers[x].endpoint_path_index=i;
+                    break;
+                }
+            }
         }
     }
     return x;

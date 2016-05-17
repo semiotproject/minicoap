@@ -3,9 +3,9 @@
 
 #define DEBUG // TODO: Arduino Serial debug
 
-// #define RPI2 // Raspberry Pi 2
-// #define LED 2 // GPIO 2 PIN 13 -- RPI2
-// #define BUTTON 0 // GPIO 0 PIN 11 -- RPI2
+#define RPI2 // Raspberry Pi 2
+#define LED 2 // GPIO 2 PIN 13 -- RPI2
+#define BUTTON 0 // GPIO 0 PIN 11 -- RPI2
 
 // ESP8266: LED 1 // GPIO 1
 
@@ -178,7 +178,8 @@ typedef struct
     coap_client_socket_t cliaddr;
     coap_packet_t inpkt;
     unsigned char obs_tick; // TODO: change size to 3 bytes (array of char)
-    uint8_t scratch_raw[4096];
+    int endpoint_path_index = -1;
+    uint8_t scratch_raw[8]; // for token
 } coap_observer_t;
 #endif
 
