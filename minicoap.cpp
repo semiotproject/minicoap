@@ -249,6 +249,9 @@ int MiniCoAP::coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outp
         // https://tools.ietf.org/html/rfc7641#section-2
         if (observeOption->buf.len == 0) { // register
             int observer_count = addObserver(inpkt);
+#ifdef DEBUG
+            printf("observer result: %d",observer_count);
+#endif // DEBUG
             if (observer_count>-1) {
                 outpkt->numopts = 2;
                 // safe because 1 < MAXOPT
