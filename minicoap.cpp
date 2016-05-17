@@ -1,19 +1,19 @@
 #include "minicoap.h"
 
-MiniCoAP::MiniCoAP(unsigned int coapPort)
+MiniCoAP::MiniCoAP()
 {
-    port = coapPort;
+    port = PORT;
     scratch_buf = {scratch_raw, sizeof(scratch_raw)};
-
     // TODO: different platforms
+#ifdef ARDUINO
+    // TODO: init IPAdresses
+#else // ARDUINO
 #ifdef IPV6
     fd = socket(AF_INET6,SOCK_DGRAM,0);
 #else /* IPV6 */
     fd = socket(AF_INET,SOCK_DGRAM,0);
 #endif /* IPV6 */
-
     fcntl(fd, F_SETFL, O_NONBLOCK);
-
     bzero(&servaddr,sizeof(servaddr));
 #ifdef IPV6
     servaddr.sin6_family = AF_INET6;
@@ -25,10 +25,10 @@ MiniCoAP::MiniCoAP(unsigned int coapPort)
     servaddr.sin_port = htons(port);
 #endif /* IPV6 */
     int bind_result = ::bind(fd,(struct sockaddr *)&servaddr, sizeof(servaddr));
-
 #ifdef DEBUG
     printf("MiniCOAP: bind socket result: %d\n",bind_result);
 #endif
+#endif // ARDUINO
     endpoint_setup();
 }
 
@@ -81,12 +81,15 @@ void MiniCoAP::answerForObservation(unsigned int index)
                     // TODO: fill cliaddr
                     coap_client_socket_t *clisock = &observers[index].cliaddr;
                     // TODO: different platforms:
+#ifdef ARDUINO
+#else // ARDUINO
                     cliaddr.sin_family = clisock->socket.sin_family;
                     cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
                     cliaddr.sin_port = clisock->socket.sin_port;
                     observers[index].obs_tick++; // TODO: if answer:
                     answer(&observers[index].inpkt);
                     // TODO: remove obs if not answer
+#endif // ARDUINO
                     return;
                 }
             }
@@ -110,9 +113,18 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
 {
     for (int i=0;i<MAX_OBSERVATIONS_COUNT;i++) {
         if (!observers[i].cliaddr.available) {
-            if ((observers[i].cliaddr.socket.sin_family==cliaddr.sin_family) &&
+            // TODO: different platforms
+            bool addrIsEq = false;
+
+#ifdef ARDUINO
+            // TODO:
+            addrIsEq = false;
+#else // ARDUINO
+            addrIsEq = ((observers[i].cliaddr.socket.sin_family==cliaddr.sin_family) &&
                     (observers[i].cliaddr.socket.sin_addr.s_addr==cliaddr.sin_addr.s_addr) &&
-                    (observers[i].cliaddr.socket.sin_port==cliaddr.sin_port)) {
+                    (observers[i].cliaddr.socket.sin_port==cliaddr.sin_port));
+#endif // ARDUINO
+            if (addrIsEq) {
                 // updating token:
                 memcpy(observers[i].scratch_raw,inpkt->tok.p,inpkt->tok.len);
                 uint8_t opt_count;
@@ -163,7 +175,7 @@ int MiniCoAP::removeObserver()
 int MiniCoAP::receiveUDP()
 {
 #ifdef ARDUINO
-    return -0 // TODO: Arduino
+    return -1; // TODO: Arduino
 #else
     socklen_t len = sizeof(cliaddr);
     ssize_t x = recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&cliaddr, &len); // TODO: save rsplen here
@@ -174,7 +186,7 @@ int MiniCoAP::receiveUDP()
 int MiniCoAP::sendUDP()
 {
 #ifdef ARDUINO
-    return -0 // TODO: Arduino
+    return -0; // TODO: Arduino
 #else
     return sendto(fd, buf, rsplen, 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr)); // FIXME: not -1 when host is unreachable
 #endif // ARDUINO
@@ -191,18 +203,20 @@ int MiniCoAP::answer(coap_packet_t* pkt)
 #endif
     coap_handle_req(pkt, &rsppkt);
 
-    if (0 != (rc = coap_build(buf, (size_t*)&rsplen, &rsppkt))) // FIXME: not size_t
+    if (0 != (rc = coap_build(buf, (size_t*)&rsplen, &rsppkt))) { // FIXME: not size_t
+#ifdef DEBUG
         printf("coap_build failed rc=%d\n", rc);
+#endif // DEBUG
+        return 0; // TODO:
+    }
     else
     {
 #ifdef DEBUG
         printf("Sending: ");
         coap_dump(buf, rsplen, true);
         printf("\n");
-#endif
-#ifdef DEBUG
         coap_dumpPacket(&rsppkt);
-#endif
+#endif // DEBUG
         int sendedCount = sendUDP();
         if (sendedCount==-1) {
             // TODO: debug

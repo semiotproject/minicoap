@@ -1,23 +1,46 @@
 #ifndef MINICOAPDEFINITIONS_H
 #define MINICOAPDEFINITIONS_H
 
-#define DEBUG // TODO: Arduino Serial debug
+//-----------------------------------------------------------
+#define DEBUG
 
-#define RPI2 // Raspberry Pi 2
-#define LED 2 // GPIO 2 PIN 13 -- RPI2
-#define BUTTON 0 // GPIO 0 PIN 11 -- RPI2
+/*
+ * Select between supported platforms:
+ * Raspberry Pi 2
+ * ESP8266
+ * General arduino with Ethernet Shield (TODO)
+ * General POSIX-based OS
+ */
 
-// ESP8266: LED 1 // GPIO 1
+//----Raspberry Pi 2:--------------
+// #define WIRINGPI
+//#define LED 2 // GPIO 2 PIN 13
+//#define BUTTON 0 // GPIO 0 PIN 11
 
-// commnent to remove subsribtions support
+//----ESP8266:------------
+#define LED 1 // GPIO 1
+#define BUTTON 2 // GPIO 2
+
+//----General arduino with Ethernet Shield:----
+// TODO:
+
+//----General POSIX-based OS:--------
+// Just comment all the options above
+
+
+// undef OBS_SUPPORT to remove subsribtions support
+#define OBS_SUPPORT
 #define MAX_ENDPOINTS_COUNT 10
-#define MAX_OBSERVATIONS_COUNT 100 // Map: observer + resource
+#define MAX_OBSERVATIONS_COUNT 50 // Map: observer + resource
 // FIXME: get rid of MAX_SEGMENTS
 #define MAX_SEGMENTS 2  // 2 = /foo/bar, 3 = /foo/bar/baz
 #define PORT 5683
-#define MAXOPT 16
 // TODO: count MAXRESPLEN:
 #define MAXRESPLEN 1500 // FIXME: buflen 4096
+
+//-----------------------------------------------------------
+
+#define MAXOPT 16
 
 //http://tools.ietf.org/html/rfc7252#section-3
 typedef struct
@@ -164,23 +187,26 @@ typedef struct
 
 const coap_endpoint_path_t path_well_known_core = {2, {".well-known", "core"}};
 
-#ifdef MAX_OBSERVATIONS_COUNT
+#ifdef OBS_SUPPORT
+    typedef struct
+    {
+        // TODO: different for platforms
+        #ifdef ARDUINO
+            IPAddress socket;
+        #else // ARDUINO
+            struct sockaddr_in socket;
+        #endif // ARDUINO
+        bool available = true;
+    } coap_client_socket_t;
 
-typedef struct
-{
-    // FIXME: different for platforms
-    struct sockaddr_in socket;
-    bool available = true;
-} coap_client_socket_t;
-
-typedef struct
-{
-    coap_client_socket_t cliaddr;
-    coap_packet_t inpkt;
-    unsigned char obs_tick; // TODO: change size to 3 bytes (array of char)
-    int endpoint_path_index = -1;
-    uint8_t scratch_raw[8]; // for token
-} coap_observer_t;
-#endif
+    typedef struct
+    {
+        coap_client_socket_t cliaddr;
+        coap_packet_t inpkt;
+        unsigned char obs_tick; // TODO: change size to 3 bytes (array of char)
+        int endpoint_path_index = -1;
+        uint8_t scratch_raw[8]; // for token
+    } coap_observer_t;
+#endif // OBS_SUPPORT
 
 #endif // MINICOAPDEFINITIONS_H

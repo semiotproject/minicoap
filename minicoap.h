@@ -8,8 +8,8 @@
 #include <string.h>
 #include <stddef.h>
 
-#ifdef Arduino
-
+#ifdef ARDUINO
+#include "IPAddress.h"
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -23,33 +23,37 @@
 class MiniCoAP
 {
 public:
-    MiniCoAP(unsigned int coapPort);
+    MiniCoAP();
     int coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outpkt, uint8_t *content, size_t content_len, coap_responsecode_t rspcode, coap_content_type_t content_type);
     int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool *obs_changed = NULL, const char *core_attr = NULL);
     void answerForIncomingRequest();
-#ifdef MAX_OBSERVATIONS_COUNT
+#ifdef OBS_SUPPORT
     void answerForObservations();
-#endif // #ifdef MAX_OBSERVATIONS_COUNT
+#endif // OBS_SUPPORT
 
 private:
-#ifdef MAX_OBSERVATIONS_COUNT
+#ifdef OBS_SUPPORT
     void answerForObservation(unsigned int index);
     int addObserver(const coap_packet_t *inpkt);
     int removeObserver();
-#endif // MAX_OBSERVATIONS_COUNT
+#endif // OBS_SUPPORT
     int receiveUDP();
     int sendUDP();
     int answer(coap_packet_t *pkt);
     unsigned int endpointsCount = 0;
     coap_endpoint_t endpoints[MAX_ENDPOINTS_COUNT];
 
-    unsigned int port = PORT;
+    unsigned int port;
     int fd;
-#ifdef IPV6 // FIXME
-    struct sockaddr_in6 servaddr, cliaddr;
-#else /* IPV6 */
-    struct sockaddr_in servaddr, cliaddr;
-#endif /* IPV6 */
+#ifdef ARDUINO
+    IPAddress servaddr, cliaddr;
+#else
+    #ifdef IPV6 // FIXME
+        struct sockaddr_in6 servaddr, cliaddr;
+    #else /* IPV6 */
+        struct sockaddr_in servaddr, cliaddr;
+    #endif /* IPV6 */
+#endif // ARDUINO
     uint8_t buf[4096];
     uint8_t scratch_raw[4096];
     coap_rw_buffer_t scratch_buf;
@@ -69,7 +73,7 @@ private:
     void endpoint_setup(void);
     void build_rsp(); // build .well-known/core answer
     uint16_t rsplen = MAXRESPLEN; // .well-known/core answer length // FIXME: it's just a buf len
-    char rsp[MAXRESPLEN] = ""; // .well-known/core answer
+    char rsp[MAXRESPLEN]; // .well-known/core answer
     int handle_get_well_known_core(const coap_packet_t *inpkt, coap_packet_t *outpkt);
 #ifdef DEBUG
     void coap_dumpHeader(coap_header_t *hdr);
@@ -78,9 +82,9 @@ private:
     void coap_dumpPacket(coap_packet_t *pkt);
 #endif // DEBUG
 
-#ifdef MAX_OBSERVATIONS_COUNT
+#ifdef OBS_SUPPORT
     coap_observer_t observers[MAX_OBSERVATIONS_COUNT];
-#endif // MAX_OBSERVATIONS_COUNT
+#endif // OBS_SUPPORT
 };
 
 #endif // MINICOAP_H
