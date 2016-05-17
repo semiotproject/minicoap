@@ -113,6 +113,8 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
             if ((observers[i].cliaddr.socket.sin_family==cliaddr.sin_family) &&
                     (observers[i].cliaddr.socket.sin_addr.s_addr==cliaddr.sin_addr.s_addr) &&
                     (observers[i].cliaddr.socket.sin_port==cliaddr.sin_port)) {
+                // updating token:
+                memcpy(observers[i].scratch_raw,inpkt->tok.p,inpkt->tok.len);
                 return i;
             }
         }
@@ -132,6 +134,7 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
             memcpy(observers[x].scratch_raw,inpkt->tok.p,inpkt->tok.len);
             observers[x].cliaddr.socket=cliaddr;
             observers[x].cliaddr.available=false;
+            // saving endpoint_path_index:
             for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
                 if (coap_compare_uri_path_opt(&observers[x].inpkt,endpoints[i].path)) {
                     observers[x].endpoint_path_index=i;
@@ -250,7 +253,7 @@ int MiniCoAP::coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outp
         if (observeOption->buf.len == 0) { // register
             int observer_count = addObserver(inpkt);
 #ifdef DEBUG
-            printf("observer result: %d",observer_count);
+            printf("add observer result: %d\n",observer_count);
 #endif // DEBUG
             if (observer_count>-1) {
                 outpkt->numopts = 2;
