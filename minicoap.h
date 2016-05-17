@@ -35,7 +35,6 @@ private:
 #ifdef MAX_OBSERVATIONS_COUNT
     void answerForObservation(unsigned int index);
     int addObserver(const coap_packet_t *inpkt);
-    // TODO: removeObserver
     int removeObserver();
 #endif // MAX_OBSERVATIONS_COUNT
     int receiveUDP();

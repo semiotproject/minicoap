@@ -457,8 +457,6 @@ int MiniCoAP::coap_handle_req(const coap_packet_t *inpkt, coap_packet_t *outpkt)
             return ep->handler(inpkt, outpkt);
         }
 next:
-        // e++;
-        // ep = &endpoints[e]; // FIXME: crazy stuff
         ep++;
     }
 

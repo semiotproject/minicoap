@@ -22,7 +22,6 @@ void turnOffLight() {
     }
 }
 
-// FIXME: too much for interrupt:
 void turnOnLight() {
     if (light=='0') {
         light = '1';
@@ -55,6 +54,17 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     return coap.coap_make_response(inpkt, outpkt, NULL, 0, COAP_RSPCODE_BAD_REQUEST, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
+void updateResources() {
+#ifdef RPI2
+    if (digitalRead(BUTTON)==HIGH) {
+        turnOnLight();
+    }
+    else if (digitalRead(BUTTON)==LOW) {
+        turnOffLight();
+    }
+#endif
+}
+
 void setup() {
 #ifdef RPI2
     wiringPiSetup();
@@ -74,26 +84,11 @@ void setup() {
 
 // TODO: listen for hw button
 void loop() {
-    int i = 0;
     while(1)
     {
-        #ifdef RPI2
-        if (digitalRead(BUTTON)==HIGH) {
-            turnOnLight();
-        }
-        else if (digitalRead(BUTTON)==LOW) {
-            turnOffLight();
-        }
-        #endif
-        // coap.answerForObservation(i);
+        updateResources();
         coap.answerForObservations();
         coap.answerForIncomingRequest();
-        if (i<MAX_OBSERVATIONS_COUNT-2) {
-            i++;
-        }
-        else {
-            i=0;
-        }
     }
 }
 
