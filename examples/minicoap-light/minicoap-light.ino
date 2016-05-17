@@ -85,7 +85,8 @@ void loop() {
             turnOffLight();
         }
         #endif
-        coap.answerForObservation(i);
+        // coap.answerForObservation(i);
+        coap.answerForObservations();
         coap.answerForIncomingRequest();
         if (i<MAX_OBSERVATIONS_COUNT-2) {
             i++;
