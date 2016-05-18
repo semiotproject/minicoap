@@ -192,7 +192,8 @@ const coap_endpoint_path_t path_well_known_core = {2, {".well-known", "core"}};
     {
         // TODO: different for platforms
         #ifdef ARDUINO
-            IPAddress socket;
+            IPAddress host;
+            unsigned int port;
         #else // ARDUINO
             struct sockaddr_in socket;
         #endif // ARDUINO

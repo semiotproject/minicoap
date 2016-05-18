@@ -9,7 +9,8 @@
 #include <stddef.h>
 
 #ifdef ARDUINO
-#include "IPAddress.h"
+#include <IPAddress.h>
+#include <WiFiUdp.h>
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -24,6 +25,7 @@ class MiniCoAP
 {
 public:
     MiniCoAP();
+    int begin();
     int coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outpkt, uint8_t *content, size_t content_len, coap_responsecode_t rspcode, coap_content_type_t content_type);
     int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool *obs_changed = NULL, const char *core_attr = NULL);
     void answerForIncomingRequest();
@@ -46,7 +48,8 @@ private:
     unsigned int port;
     int fd;
 #ifdef ARDUINO
-    IPAddress servaddr, cliaddr;
+    WiFiUDP udp;
+    coap_client_socket_t servaddr, cliaddr;
 #else
     #ifdef IPV6 // FIXME
         struct sockaddr_in6 servaddr, cliaddr;

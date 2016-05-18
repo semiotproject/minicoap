@@ -1,7 +1,10 @@
 #include "minicoap.h"
 #ifdef WIRINGPI
-    #include <wiringPi.h>
+#include <wiringPi.h>
 #endif // WIRINGPI
+#ifdef ARDUINO
+#include "WiFiex.h"
+#endif // ARDUINO
 
 MiniCoAP coap;
 
@@ -13,9 +16,9 @@ void turnOffLight() {
     if (light=='1') {
         light = '0';
         lightChanged = true;
-        #if defined(WIRINGPI) || defined(ARDUINO)
-            digitalWrite(LED, LOW);
-        #endif // WIRINGPI || ARDUINO
+#if defined(WIRINGPI) || defined(ARDUINO)
+        digitalWrite(LED, LOW);
+#endif // WIRINGPI || ARDUINO
     }
 }
 
@@ -23,9 +26,9 @@ void turnOnLight() {
     if (light=='0') {
         light = '1';
         lightChanged = true;
-        #if defined(WIRINGPI) || defined(ARDUINO)
-            digitalWrite(LED, HIGH);
-        #endif // WIRINGPI || ARDUINO
+#if defined(WIRINGPI) || defined(ARDUINO)
+        digitalWrite(LED, HIGH);
+#endif // WIRINGPI || ARDUINO
     }
 }
 
@@ -49,47 +52,50 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 }
 
 void updateResources() {
-    #if defined(WIRINGPI) || defined(ARDUINO)
-        if (digitalRead(BUTTON)==HIGH) {
-            turnOnLight();
-        }
-        else if (digitalRead(BUTTON)==LOW) {
-            turnOffLight();
-        }
-    #endif
+#if defined(WIRINGPI) || defined(ARDUINO)
+    if (digitalRead(BUTTON)==HIGH) {
+        turnOnLight();
+    }
+    else if (digitalRead(BUTTON)==LOW) {
+        turnOffLight();
+    }
+#endif
 }
 
 void setup() {
-    #ifdef WIRINGPI
-        wiringPiSetup();
-    #endif // WIRINGPI
-    #if defined(WIRINGPI) || defined(ARDUINO)
-        pinMode(LED, OUTPUT);
-        digitalWrite(LED, HIGH); // FIXME: according to light
-    #endif // WIRINGPI || ARDUINO
-    #ifdef BUTTON // WIRINGPI BUTTON
-        pinMode(BUTTON, INPUT);
-    #endif
+#ifdef WIRINGPI
+    wiringPiSetup();
+#endif // WIRINGPI
+#if defined(WIRINGPI) || defined(ARDUINO)
+    pinMode(LED, OUTPUT);
+    digitalWrite(LED, HIGH); // FIXME: according to light
+#endif // WIRINGPI || ARDUINO
+#ifdef BUTTON // WIRINGPI BUTTON
+    pinMode(BUTTON, INPUT);
+#endif
     coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
     coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
+#ifdef ARDUINO
+    connectToWPS();
+#endif // ARDUINO
+    coap.begin(); // TODO: check if success
 }
 
 // TODO: listen for hw button
 void loop() {
-    while(1)
-    {
-        updateResources();
-        coap.answerForObservations();
-        coap.answerForIncomingRequest();
-    }
+    // TODO: check for network connection for arduino-based
+    updateResources();
+    coap.answerForObservations();
+    coap.answerForIncomingRequest();
 }
 
 // for posix-based OSes compability:
 #ifndef ARDUINO
-    int main(int argc, char **argv)
-    {
-        setup();
+int main(int argc, char **argv) {
+    setup();
+    while(1) {
         loop();
-        return 0;
     }
+    return 0;
+}
 #endif // !ARDUINO

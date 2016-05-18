@@ -6,7 +6,7 @@ MiniCoAP::MiniCoAP()
     scratch_buf = {scratch_raw, sizeof(scratch_raw)};
     // TODO: different platforms
 #ifdef ARDUINO
-    // TODO: init IPAdresses
+
 #else // ARDUINO
 #ifdef IPV6
     fd = socket(AF_INET6,SOCK_DGRAM,0);
@@ -30,6 +30,15 @@ MiniCoAP::MiniCoAP()
 #endif
 #endif // ARDUINO
     endpoint_setup();
+}
+
+int MiniCoAP::begin()
+{
+    // TODO: different platforms
+#ifdef ARDUINO
+    return udp.begin(port);
+#endif
+    return 0;
 }
 
 int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool* obs_changed, const char *core_attr)
@@ -82,14 +91,17 @@ void MiniCoAP::answerForObservation(unsigned int index)
                     coap_client_socket_t *clisock = &observers[index].cliaddr;
                     // TODO: different platforms:
 #ifdef ARDUINO
+                    cliaddr.host = clisock->host;
+                    cliaddr.port = clisock->port;
 #else // ARDUINO
                     cliaddr.sin_family = clisock->socket.sin_family;
                     cliaddr.sin_addr.s_addr = clisock->socket.sin_addr.s_addr;
                     cliaddr.sin_port = clisock->socket.sin_port;
+#endif // ARDUINO
                     observers[index].obs_tick++; // TODO: if answer:
                     answer(&observers[index].inpkt);
                     // TODO: remove obs if not answer
-#endif // ARDUINO
+
                     return;
                 }
             }
@@ -113,12 +125,10 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
 {
     for (int i=0;i<MAX_OBSERVATIONS_COUNT;i++) {
         if (!observers[i].cliaddr.available) {
-            // TODO: different platforms
             bool addrIsEq = false;
-
+            // TODO: different platforms
 #ifdef ARDUINO
-            // TODO:
-            addrIsEq = false;
+            addrIsEq = (observers[i].cliaddr.host==cliaddr.host) && (observers[i].cliaddr.port==cliaddr.port);
 #else // ARDUINO
             addrIsEq = ((observers[i].cliaddr.socket.sin_family==cliaddr.sin_family) &&
                     (observers[i].cliaddr.socket.sin_addr.s_addr==cliaddr.sin_addr.s_addr) &&
@@ -149,7 +159,12 @@ int MiniCoAP::addObserver(const coap_packet_t *inpkt)
             observers[x].inpkt=*inpkt;
             observers[x].inpkt.tok.p = observers[x].scratch_raw;
             memcpy(observers[x].scratch_raw,inpkt->tok.p,inpkt->tok.len);
+            // TODO: different platforms
+#ifdef ARDUINO
+            observers[x].cliaddr=cliaddr;
+#else // ARDUINO
             observers[x].cliaddr.socket=cliaddr;
+#endif // ARDUINO
             observers[x].cliaddr.available=false;
             // saving endpoint_path_index:
             for (int i=0;i<MAX_ENDPOINTS_COUNT;i++) {
@@ -174,22 +189,33 @@ int MiniCoAP::removeObserver()
 
 int MiniCoAP::receiveUDP()
 {
+    ssize_t x;
 #ifdef ARDUINO
-    return -1; // TODO: Arduino
+    x = udp.parsePacket();
+    if(x>0) {
+        udp.read(buf,sizeof(buf));
+        cliaddr.host = udp.remoteIP();
+        cliaddr.port = udp.remotePort();
+    }
 #else
     socklen_t len = sizeof(cliaddr);
-    ssize_t x = recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&cliaddr, &len); // TODO: save rsplen here
-    return x;
+    x = recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&cliaddr, &len); // TODO: save rsplen here
 #endif // ARDUINO
+    return x;
 }
 
 int MiniCoAP::sendUDP()
 {
+    // TODO: different platforms
 #ifdef ARDUINO
-    return -0; // TODO: Arduino
+    udp.beginPacket(cliaddr.host, cliaddr.port);
+    udp.write(buf,rsplen);
+    udp.endPacket();
+    return rsplen;
 #else
     return sendto(fd, buf, rsplen, 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr)); // FIXME: not -1 when host is unreachable
 #endif // ARDUINO
+    return -1;
 
 }
 
@@ -220,7 +246,7 @@ int MiniCoAP::answer(coap_packet_t* pkt)
         int sendedCount = sendUDP();
         if (sendedCount==-1) {
             // TODO: debug
-            removeObserver();
+            // removeObserver(); // TODO:
         }
     }
     return 0; // TODO:
