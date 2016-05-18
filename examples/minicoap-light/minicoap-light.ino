@@ -17,7 +17,9 @@ void turnOffLight() {
         light = '0';
         lightChanged = true;
 #if defined(WIRINGPI) || defined(ARDUINO)
+#ifdef LED
         digitalWrite(LED, LOW);
+#endif // LED
 #endif // WIRINGPI || ARDUINO
     }
 }
@@ -27,7 +29,9 @@ void turnOnLight() {
         light = '1';
         lightChanged = true;
 #if defined(WIRINGPI) || defined(ARDUINO)
+#ifdef LED
         digitalWrite(LED, HIGH);
+#endif // LED
 #endif // WIRINGPI || ARDUINO
     }
 }
@@ -53,12 +57,14 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 
 void updateResources() {
 #if defined(WIRINGPI) || defined(ARDUINO)
+#ifdef BUTTON
     if (digitalRead(BUTTON)==HIGH) {
         turnOnLight();
     }
     else if (digitalRead(BUTTON)==LOW) {
         turnOffLight();
     }
+#endif // BUTTON
 #endif
 }
 
@@ -67,16 +73,18 @@ void setup() {
     wiringPiSetup();
 #endif // WIRINGPI
 #if defined(WIRINGPI) || defined(ARDUINO)
+#ifdef LED
     pinMode(LED, OUTPUT);
     digitalWrite(LED, HIGH); // FIXME: according to light
-#endif // WIRINGPI || ARDUINO
-#ifdef BUTTON // WIRINGPI BUTTON
+#endif // LED
+#ifdef BUTTON // BUTTON
     pinMode(BUTTON, INPUT);
 #endif
+#endif // WIRINGPI || ARDUINO
     coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
     coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
 #ifdef ARDUINO
-    connectToWPS();
+    connectToWiFi();
 #endif // ARDUINO
     coap.begin(); // TODO: check if success
 }
