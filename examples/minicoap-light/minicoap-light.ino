@@ -55,6 +55,15 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     return coap.coap_make_response(inpkt, outpkt, NULL, 0, COAP_RSPCODE_BAD_REQUEST, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
+char wellknowncore[MAXRESPLEN];
+
+// TODO: get rid of this architecture:
+int getWellKnownCore(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
+    coap.buildWellKnownCoreString(wellknowncore,sizeof(wellknowncore));
+    printf("%d\n",strlen(wellknowncore));
+    return coap.coap_make_response(inpkt, outpkt, (uint8_t*)wellknowncore, strlen(wellknowncore), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
+}
+
 void updateResources() {
 #if defined(WIRINGPI) || defined(ARDUINO)
 #ifdef BUTTON
@@ -81,7 +90,8 @@ void setup() {
     pinMode(BUTTON, INPUT);
 #endif
 #endif // WIRINGPI || ARDUINO
-    coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,&lightChanged,"ct=0;obs");
+    coap.addEndpoint(COAP_METHOD_GET,getWellKnownCore,&path_well_known_core,"ct=40");
+    coap.addEndpoint(COAP_METHOD_GET,getLight,&pathLight,"ct=0;obs",&lightChanged);
     coap.addEndpoint(COAP_METHOD_PUT,putLight,&pathLight); // TODO
 #ifdef ARDUINO
     connectToWiFi();

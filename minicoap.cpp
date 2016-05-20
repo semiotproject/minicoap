@@ -41,7 +41,7 @@ int MiniCoAP::begin()
     return 0;
 }
 
-int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool* obs_changed, const char *core_attr)
+int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, const char *core_attr, bool* obs_changed)
 {
     if (endpointsCount+1<=MAX_ENDPOINTS_COUNT) {
         endpoints[endpointsCount].method=method;
@@ -50,8 +50,6 @@ int MiniCoAP::addEndpoint(coap_method_t method, coap_endpoint_func handler, cons
         endpoints[endpointsCount].core_attr=core_attr;
         endpoints[endpointsCount].obs_changed=obs_changed;
         endpointsCount++;
-        // build_rsp(); // TODO:
-        // endpoint_setup();
         return 1;
     }
     return 0;
@@ -78,6 +76,50 @@ void MiniCoAP::answerForIncomingRequest()
         }
 #endif // DEBUG
     }
+}
+
+void MiniCoAP::buildWellKnownCoreString(char *dst, ssize_t len)
+{
+    memset(dst, 0, len);
+    const coap_endpoint_t *ep = endpoints;
+    int i;
+    len--; // Null-terminated string
+    ep++; // well-known core // TODO: save it?
+
+    while(NULL != ep->handler)
+    {
+        if (NULL == ep->core_attr) {
+            ep++;
+            continue;
+        }
+
+        if (0 < strlen(dst)) {
+            strncat(dst, ",", len);
+            len--;
+        }
+
+        strncat(dst, "<", len);
+        len--;
+
+        for (i = 0; i < ep->path->count; i++) {
+            strncat(dst, "/", len);
+            len--;
+
+            strncat(dst, ep->path->elems[i], len);
+            len -= strlen(ep->path->elems[i]);
+        }
+
+        strncat(dst, ">;", len);
+        len -= 2;
+
+        strncat(dst, ep->core_attr, len);
+        len -= strlen(ep->core_attr);
+
+        ep++;
+    }
+#ifdef DEBUG
+    printf("Well-known core: %s\n", dst);
+#endif // DEBUG
 }
 
 void MiniCoAP::answerForObservation(unsigned int index)
@@ -646,57 +688,21 @@ const coap_option_t *MiniCoAP::coap_findOptions(const coap_packet_t *pkt, uint8_
 
 void MiniCoAP::endpoint_setup()
 {
+    /*
     endpoints[0].method=COAP_METHOD_GET;
-    endpoints[0].handler=NULL;// (coap_endpoint_func)&MiniCoAP::handle_get_well_known_core;
+    endpoints[0].handler=(coap_endpoint_func)&MiniCoAP::handle_get_well_known_core;
     endpoints[0].path=&path_well_known_core;
     endpoints[0].core_attr="ct=40";
-    build_rsp();
+    */
 }
 
 void MiniCoAP::build_rsp()
 {
-    uint16_t len = rsplen; // FIXME
-    const coap_endpoint_t *ep = endpoints;
-    int i;
-
-    len--; // Null-terminated string
-
-    while(NULL != ep->handler)
-    {
-        if (NULL == ep->core_attr) {
-            ep++;
-            continue;
-        }
-
-        if (0 < strlen(rsp)) {
-            strncat(rsp, ",", len);
-            len--;
-        }
-
-        strncat(rsp, "<", len);
-        len--;
-
-        for (i = 0; i < ep->path->count; i++) {
-            strncat(rsp, "/", len);
-            len--;
-
-            strncat(rsp, ep->path->elems[i], len);
-            len -= strlen(ep->path->elems[i]);
-        }
-
-        strncat(rsp, ">;", len);
-        len -= 2;
-
-        strncat(rsp, ep->core_attr, len);
-        len -= strlen(ep->core_attr);
-
-        ep++;
-    }
 }
 
 int MiniCoAP::handle_get_well_known_core(const coap_packet_t *inpkt, coap_packet_t *outpkt)
 {
-    return coap_make_response(inpkt, outpkt, (uint8_t*)rsp, strlen(rsp), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_APPLICATION_LINKFORMAT);
+    return 0;
 }
 
 #ifdef DEBUG

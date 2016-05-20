@@ -21,14 +21,16 @@
 
 #include "minicoapdefinitions.h"
 
+// TODO: singleton?
 class MiniCoAP
 {
 public:
     MiniCoAP();
     int begin();
     int coap_make_response(const coap_packet_t *inpkt, coap_packet_t *outpkt, uint8_t *content, size_t content_len, coap_responsecode_t rspcode, coap_content_type_t content_type);
-    int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, bool *obs_changed = NULL, const char *core_attr = NULL);
+    int addEndpoint(coap_method_t method, coap_endpoint_func handler, const coap_endpoint_path_t *path, const char *core_attr = NULL, bool *obs_changed = NULL);
     void answerForIncomingRequest();
+    void buildWellKnownCoreString(char *dst, ssize_t len);
 #ifdef OBS_SUPPORT
     void answerForObservations();
 #endif // OBS_SUPPORT
@@ -60,6 +62,7 @@ private:
     uint8_t buf[4096];
     uint8_t scratch_raw[4096];
     coap_rw_buffer_t scratch_buf;
+    uint16_t rsplen = MAXRESPLEN; // .well-known/core answer length // FIXME: it's just a buf len
     int coap_parse(coap_packet_t *pkt, const uint8_t *buf, size_t buflen);
     int coap_parseHeader(coap_header_t *hdr, const uint8_t *buf, size_t buflen);
     int coap_parseToken(coap_buffer_t *tokbuf, const coap_header_t *hdr, const uint8_t *buf, size_t buflen);
@@ -74,10 +77,9 @@ private:
     // options are always stored consecutively, so can return a block with same option num
     const coap_option_t *coap_findOptions(const coap_packet_t *pkt, uint8_t num, uint8_t *count = NULL);
     void endpoint_setup(void);
+    char rsp[MAXRESPLEN];
     void build_rsp(); // build .well-known/core answer
-    uint16_t rsplen = MAXRESPLEN; // .well-known/core answer length // FIXME: it's just a buf len
-    char rsp[MAXRESPLEN]; // .well-known/core answer
-    int handle_get_well_known_core(const coap_packet_t *inpkt, coap_packet_t *outpkt);
+    static int handle_get_well_known_core(const coap_packet_t *inpkt, coap_packet_t *outpkt);
 #ifdef DEBUG
     void coap_dumpHeader(coap_header_t *hdr);
     void coap_dump(const uint8_t *buf, size_t buflen, bool bare);
