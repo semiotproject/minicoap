@@ -46,10 +46,10 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     if (inpkt->payload.len == 1) {
         char pld = inpkt->payload.p[0];
         if (pld == '1') {
-            turnOnLight();
+            lightOn = true;
         }
         else if (pld == '0'){
-            turnOffLight();
+            lightOn = false;
         }
         return coap.coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CHANGED, COAP_CONTENTTYPE_TEXT_PLAIN);
     }
