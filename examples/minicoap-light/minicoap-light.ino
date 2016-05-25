@@ -9,8 +9,7 @@
 MiniCoAP coap;
 
 // TODO: get rid of static content argument?
-bool lightOn = true;
-static unsigned char light = '1';
+static unsigned char light = 100; // 255
 bool lightChanged = true;
 
 void turnOffLight() {
@@ -46,10 +45,10 @@ int putLight(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
     if (inpkt->payload.len == 1) {
         char pld = inpkt->payload.p[0];
         if (pld == '1') {
-            lightOn = true;
+            turnOnLight();
         }
         else if (pld == '0'){
-            lightOn = false;
+            turnOffLight();
         }
         return coap.coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CHANGED, COAP_CONTENTTYPE_TEXT_PLAIN);
     }
@@ -68,16 +67,11 @@ int getWellKnownCore(const coap_packet_t *inpkt, coap_packet_t *outpkt) {
 void updateResources() {
 #if defined(WIRINGPI) || defined(ARDUINO)
 #ifdef BUTTON
-    if (digitalRead(BUTTON)==HIGH) {
-        lightOn = true;
-    }
-    else if (digitalRead(BUTTON)==LOW) {
-        lightOn = false;
-    }
-    if (lightOn) {
+    int buttonValue = digitalRead(BUTTON);
+    if (buttonValue==HIGH) {
         turnOnLight();
     }
-    else {
+    else if (buttonValue==LOW) {
         turnOffLight();
     }
 #endif // BUTTON
@@ -90,8 +84,8 @@ void setup() {
 #endif // WIRINGPI
 #if defined(WIRINGPI) || defined(ARDUINO)
 #ifdef LED
-    pinMode(LED, OUTPUT);
-    digitalWrite(LED, HIGH); // FIXME: according to light
+    // pinMode(LED, OUTPUT);
+    analogWrite(LED, 100); // FIXME: according to light
 #endif // LED
 #ifdef BUTTON // BUTTON
     pinMode(BUTTON, INPUT);
