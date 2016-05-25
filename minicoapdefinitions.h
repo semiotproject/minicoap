@@ -14,7 +14,7 @@
 
 //----Raspberry Pi 2:--------------
 #define WIRINGPI
-#define LED 1 // GPIO 1 PIN 12
+#define LED 1 // GPIO 1 PIN 12 -- PWM
 // #define BUTTON 0 // GPIO 0 PIN 11
 
 //----ESP8266:------------
