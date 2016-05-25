@@ -9,6 +9,7 @@
 MiniCoAP coap;
 
 // TODO: get rid of static content argument?
+bool lightOn = true;
 static unsigned char light = '1';
 bool lightChanged = true;
 
@@ -68,9 +69,15 @@ void updateResources() {
 #if defined(WIRINGPI) || defined(ARDUINO)
 #ifdef BUTTON
     if (digitalRead(BUTTON)==HIGH) {
-        turnOnLight();
+        lightOn = true;
     }
     else if (digitalRead(BUTTON)==LOW) {
+        lightOn = false;
+    }
+    if (lightOn) {
+        turnOnLight();
+    }
+    else {
         turnOffLight();
     }
 #endif // BUTTON
