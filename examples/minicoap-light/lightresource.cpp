@@ -1,8 +1,10 @@
 #include "lightresource.h"
 
-LightResource::LightResource(MiniCoAP *coapServer):CoAPResource(coapServer)
+LightResource::LightResource(unsigned int connectedPin, bool isPwmSupported, MiniCoAP* coapServer):CoAPResource(coapServer)
 {
     light = 0xFF;
+    pin = connectedPin;
+    pwmSupported = isPwmSupported;
 #ifdef WIRINGPI
     wiringPiSetup();
 #endif // WIRINGPI
@@ -15,7 +17,7 @@ LightResource::LightResource(MiniCoAP *coapServer):CoAPResource(coapServer)
     }
     else {
         pinMode(pin,OUTPUT);
-        digitalWrite(pin,HIGH);
+        digitalWrite(pin,light/255);
     }
 
 #endif // WIRINGPI
@@ -81,14 +83,4 @@ void LightResource::setLight(unsigned char new_light_value)
 void LightResource::setLightName(const char *name)
 {
     resourcePath = {1,{name}};
-}
-
-void LightResource::enablePWM()
-{
-    pwmSupported = true;
-}
-
-void LightResource::setPin(unsigned int connectedPin)
-{
-    pin = connectedPin;
 }

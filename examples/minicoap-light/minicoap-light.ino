@@ -6,17 +6,11 @@
 #endif // ARDUINO
 
 MiniCoAP coap;
-LightResource led1(&coap);
-LightResource led2(&coap);
-LightResource led3(&coap);
+LightResource led1(LED1,true,&coap);
+LightResource led2(LED2,true,&coap);
+LightResource led3(LED3,false,&coap);
 
 void setup() {
-    led1.setLightName("led1");
-    led1.setPin(LED1);
-    led2.setLightName("led2");
-    led1.setPin(LED2);
-    led3.setLightName("led3");
-    led1.setPin(LED3);
 #ifdef ARDUINO
     connectToWiFi();
 #endif // ARDUINO
