@@ -18,7 +18,13 @@ LightResource::LightResource(const char *lightName, unsigned int connectedPin, b
     }
     else {
         pinMode(pin,OUTPUT);
-        digitalWrite(pin,light/255);
+        if (light>126) {
+            digitalWrite(pin,HIGH);
+        }
+        else {
+            digitalWrite(pin,LOW);
+        }
+
     }
 
 #endif // WIRINGPI
@@ -62,7 +68,12 @@ void LightResource::setLight(unsigned char new_light_value)
             pwmWrite(pin, new_light_value);
         }
         else {
-            digitalWrite(pin, new_light_value/255);
+            if (light>126) {
+                digitalWrite(pin,HIGH);
+            }
+            else {
+                digitalWrite(pin,LOW);
+            }
         }
 #endif // WIRINGPI
 

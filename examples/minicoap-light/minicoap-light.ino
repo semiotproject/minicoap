@@ -5,10 +5,14 @@
 #include "WiFiex.h"
 #endif // ARDUINO
 
+const char led1Name[] = "led1";
+const char led2Name[] = "led2";
+const char led3Name[] = "led3";
+
 MiniCoAP coap;
-LightResource led1("led1",LED1,true,&coap);
-LightResource led2("led2",LED2,true,&coap);
-LightResource led3("led3",LED3,false,&coap);
+LightResource led1(led1Name,LED1,true,&coap);
+LightResource led2(led2Name,LED2,true,&coap);
+LightResource led3(led3Name,LED3,false,&coap);
 
 void setup() {
 #ifdef ARDUINO
