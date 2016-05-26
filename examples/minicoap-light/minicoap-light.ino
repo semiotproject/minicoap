@@ -6,9 +6,9 @@
 #endif // ARDUINO
 
 MiniCoAP coap;
-LightResource led1(LED1,true,&coap);
-LightResource led2(LED2,true,&coap);
-LightResource led3(LED3,false,&coap);
+LightResource led1("led1",LED1,true,&coap);
+LightResource led2("led2",LED2,true,&coap);
+LightResource led3("led3",LED3,false,&coap);
 
 void setup() {
 #ifdef ARDUINO
