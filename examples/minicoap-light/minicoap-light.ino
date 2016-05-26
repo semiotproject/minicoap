@@ -12,7 +12,6 @@ const char led3Name[] = "led3";
 MiniCoAP coap;
 LightResource led1(led1Name,LED1,true,&coap);
 LightResource led2(led2Name,LED2,true,&coap);
-LightResource led3(led3Name,LED3,false,&coap);
 
 void setup() {
 #ifdef ARDUINO

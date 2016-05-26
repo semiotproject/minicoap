@@ -16,7 +16,7 @@
 #define WIRINGPI
 #define LED // enable LEDs
 #define LED1 1 // GPIO 1 PIN 12 -- PWM0
-#define LED2 24 // GPIO 24 PIN 35 -- PWM1
+#define LED2 23 // GPIO 23 PIN 33 -- PWM1
 #define LED3 3 // GPIO 3 PIN 15 -- General
 // #define BUTTON 0 // GPIO 0 PIN 11
 
