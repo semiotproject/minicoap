@@ -59,20 +59,23 @@ int LightResource::putMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
 
 void LightResource::setLight(unsigned char new_light_value)
 {
+    printf("from payload:%d\n",new_light_value);
     if (new_light_value!=light) {
-        printf("light:%d\n",new_light_value/255);
 #ifdef LED
 
 #if defined(WIRINGPI)
         if (pwmSupported) {
             pwmWrite(pin, new_light_value);
+            printf("pwm set:%d\n",new_light_value);
         }
         else {
             if (light>126) {
                 digitalWrite(pin,HIGH);
+                printf("digital set:%d\n",HIGH);
             }
             else {
                 digitalWrite(pin,LOW);
+                printf("digital set:%d\n",LOW);
             }
         }
 #endif // WIRINGPI
