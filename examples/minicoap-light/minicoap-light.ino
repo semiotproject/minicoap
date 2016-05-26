@@ -13,10 +13,8 @@ LightResource led3(&coap);
 void setup() {
     led1.setLightName("led1");
     led1.setPin(LED1);
-    led1.enablePWM();
     led2.setLightName("led2");
     led1.setPin(LED2);
-    led1.enablePWM();
     led3.setLightName("led3");
     led1.setPin(LED3);
 #ifdef ARDUINO

@@ -18,7 +18,7 @@ public:
     void enablePWM();
     void setPin(unsigned int connectedPin);
 private:
-    unsigned char light; // fixme: was static
+    unsigned char light;
     void setLight(unsigned char new_light_value);
     bool pwmSupported = false;
     unsigned int pin;

@@ -9,8 +9,15 @@ LightResource::LightResource(MiniCoAP *coapServer):CoAPResource(coapServer)
 
 #ifdef LED
 #if defined(WIRINGPI)
-    pinMode(pin, PWM_OUTPUT);
-    pwmWrite(pin,light);
+    if (pwmSupported) {
+        pinMode(pin, PWM_OUTPUT);
+        pwmWrite(pin,light);
+    }
+    else {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin,light/255);
+    }
+
 #endif // WIRINGPI
 
 #if defined(ARDUINO)
