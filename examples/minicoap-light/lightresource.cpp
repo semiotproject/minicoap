@@ -14,8 +14,8 @@ LightResource::LightResource(MiniCoAP *coapServer):CoAPResource(coapServer)
         pwmWrite(pin,light);
     }
     else {
-        pinMode(pin, OUTPUT);
-        digitalWrite(pin,light/255);
+        pinMode(pin,OUTPUT);
+        digitalWrite(pin,HIGH);
     }
 
 #endif // WIRINGPI
