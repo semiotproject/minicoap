@@ -1,24 +1,6 @@
 #ifndef MINICOAP_H
 #define MINICOAP_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stddef.h>
-
-#ifdef ARDUINO
-#include <IPAddress.h>
-#include <WiFiUdp.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <strings.h>
-#endif
-
 #include "minicoapdefinitions.h"
 
 // TODO: singleton?

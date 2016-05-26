@@ -14,7 +14,10 @@
 
 //----Raspberry Pi 2:--------------
 #define WIRINGPI
-#define LED 1 // GPIO 1 PIN 12 -- PWM
+#define LED // enable LEDs
+#define LED1 1 // GPIO 1 PIN 12 -- PWM0
+#define LED2 24 // GPIO 24 PIN 35 -- PWM1
+#define LED3 3 // GPIO 3 PIN 15 -- General
 // #define BUTTON 0 // GPIO 0 PIN 11
 
 //----ESP8266:------------
@@ -39,6 +42,25 @@
 #define MAXRESPLEN 1500 // FIXME: buflen 4096
 
 //-----------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
+#include <functional>
+
+#ifdef ARDUINO
+#include <IPAddress.h>
+#include <WiFiUdp.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <strings.h>
+#endif
 
 #define MAXOPT 16
 
@@ -165,8 +187,8 @@ typedef enum
 
 ///////////////////////
 
-typedef int (*coap_endpoint_func)(const coap_packet_t *inpkt, coap_packet_t *outpkt); // FIXME: is there a case where hi and low are not equals to inpkt's data?
-// TODO: typedef std::function<void(void)> THandlerFunction;
+// typedef int (*coap_endpoint_func)(const coap_packet_t *inpkt, coap_packet_t *outpkt); // FIXME: is there a case where hi and low are not equals to inpkt's data?
+typedef std::function<int(const coap_packet_t *inpkt, coap_packet_t *outpkt)> coap_endpoint_func;
 
 typedef struct
 {

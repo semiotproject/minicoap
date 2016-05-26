@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(minicoap)
-add_definitions(-x c++)
+add_definitions(
+    -x c++
+)
+
+set(CMAKE_CXX_STANDARD 11)
 
 # //////
 find_path(WiringPi wiringPi.h)
@@ -28,6 +32,10 @@ SET(SRC_LIST
     ${PROJECT_SOURCE_DIR}/minicoapdefinitions.h
     ${PROJECT_SOURCE_DIR}/minicoap.h
     ${PROJECT_SOURCE_DIR}/minicoap.cpp
+    ${PROJECT_SOURCE_DIR}/coapresource.h
+    ${PROJECT_SOURCE_DIR}/coapresource.cpp
+    ${PROJECT_SOURCE_DIR}/examples/minicoap-light/lightresource.h
+    ${PROJECT_SOURCE_DIR}/examples/minicoap-light/lightresource.cpp
     ${PROJECT_SOURCE_DIR}/examples/minicoap-light/minicoap-light.ino
     )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall")
@@ -38,4 +46,6 @@ set_source_files_properties(${PROJECT_SOURCE_DIR}/examples/minicoap-light/minico
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES LINKER_LANGUAGE CXX)
+target_compile_features(minicoap PRIVATE cxx_range_for)
 target_link_libraries(minicoap ${WIRINGPI_LIBRARY})
+

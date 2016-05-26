@@ -628,6 +628,8 @@ int MiniCoAP::coap_build(uint8_t *buf, size_t *buflen, const coap_packet_t *pkt)
 
     opts_len = (p - buf) - 4;   // number of bytes used by options
 
+
+
     if (pkt->payload.len > 0)
     {
         if (*buflen < 4 + 1 + pkt->payload.len + opts_len)
