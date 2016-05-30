@@ -1,5 +1,7 @@
-Copyright (c) 2013 Toby Jaffey <toby@1248.io>
-Contributor: Alexey Andreev <aa13q@ya.ru>, 2016
+This software is based on microcoap (https://github.com/1248/microcoap) library.
+
+microcoap: Copyright (c) 2013 Toby Jaffey <toby@1248.io>
+minicoap: Copyright (c) 2016 Alexey Andreev <aa13q@ya.ru>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
