@@ -3,7 +3,7 @@
 
 #include "coapresource.h"
 #ifdef WIRINGPI
-#include <wiringPi.h>
+// #include <wiringPi.h>
 #endif // WIRINGPI
 
 

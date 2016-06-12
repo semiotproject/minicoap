@@ -757,3 +757,5 @@ void MiniCoAP::coap_dumpPacket(coap_packet_t *pkt)
 }
 
 #endif // DEBUG
+
+

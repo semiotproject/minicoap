@@ -36,6 +36,10 @@ SET(SRC_LIST
     ${PROJECT_SOURCE_DIR}/coapresource.cpp
     ${PROJECT_SOURCE_DIR}/examples/minicoap-light/lightresource.h
     ${PROJECT_SOURCE_DIR}/examples/minicoap-light/lightresource.cpp
+    ${PROJECT_SOURCE_DIR}/examples/minicoap-light/labelresource.h
+    ${PROJECT_SOURCE_DIR}/examples/minicoap-light/labelresource.cpp
+    #${PROJECT_SOURCE_DIR}/examples/minicoap-light/wifiresources.h
+    #${PROJECT_SOURCE_DIR}/examples/minicoap-light/wifiresources.cpp
     ${PROJECT_SOURCE_DIR}/examples/minicoap-light/minicoap-light.ino
     )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall")
