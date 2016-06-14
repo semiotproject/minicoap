@@ -1,6 +1,6 @@
 #include "minicoap.h"
+#include "wellknowncoreresource.h"
 #include "lightresource.h"
-#include "labelresource.h"
 
 #ifdef ARDUINO
 #include "WiFiex.h"
@@ -8,10 +8,10 @@
 
 const char led1Name[] = "led1";
 const char led2Name[] = "led2";
-const char deviceLabel[] = "Raspberry Device with two leds";
+const char wnkAnswer[] = "</led1>,<led2>";
 
 MiniCoAP coap;
-LabelResource deviceLabelRes(deviceLabel,&coap);
+WellKnownCoreResource wnkRes(wnkAnswer,&coap);
 #ifdef LED1
 LightResource led1(led1Name,LED1,true,&coap);
 #endif // LED1

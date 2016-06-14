@@ -30,6 +30,7 @@ LightResource::LightResource(const char *lightName, unsigned int connectedPin, b
 #endif // WIRINGPI
 
 #if defined(ARDUINO)
+    pinMode(pin, OUTPUT);
     analogWrite(pin, light);
 #endif // ARDUINO
 
@@ -44,7 +45,7 @@ LightResource::LightResource(const char *lightName, unsigned int connectedPin, b
 
 int LightResource::getMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
 {
-    return getServer()->coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_APPLICATION_OCTECT_STREAM);
+    return getServer()->coap_make_response(inpkt, outpkt, &light, 1, COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_APPLICATION_OCTECT_STREAM);
 }
 
 int LightResource::putMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
@@ -52,7 +53,7 @@ int LightResource::putMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
     if (inpkt->payload.len == 1) {
         char pld = inpkt->payload.p[0];
         setLight(pld);
-        return getServer()->coap_make_response(inpkt, outpkt, &light, sizeof(light), COAP_RSPCODE_CHANGED, COAP_CONTENTTYPE_TEXT_PLAIN);
+        return getServer()->coap_make_response(inpkt, outpkt, &light, 1, COAP_RSPCODE_CHANGED, COAP_CONTENTTYPE_TEXT_PLAIN);
     }
     return getServer()->coap_make_response(inpkt, outpkt, NULL, 0, COAP_RSPCODE_BAD_REQUEST, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
