@@ -122,6 +122,11 @@ void MiniCoAP::buildWellKnownCoreString(char *dst, ssize_t len)
 #endif // DEBUG
 }
 
+coap_client_socket_t MiniCoAP::getCurrentSocket()
+{
+    return cliaddr;
+}
+
 void MiniCoAP::answerForObservation(unsigned int index)
 {
     if (index<MAX_OBSERVATIONS_COUNT) {

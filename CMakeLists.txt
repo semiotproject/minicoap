@@ -7,6 +7,7 @@ add_definitions(
 set(CMAKE_CXX_STANDARD 11)
 
 # //////
+# TODO: cmake for esp8266 arduino
 find_path(WiringPi wiringPi.h)
 IF(WiringPi)
   message(STATUS "WiringPi include was found in ${WiringPi}...")
