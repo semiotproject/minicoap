@@ -3,8 +3,6 @@
 
 #include "coapresource.h"
 
-#define ARDUINO
-
 #ifdef ARDUINO
 #include <ArduinoJson.h>
 #endif

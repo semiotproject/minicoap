@@ -3,7 +3,9 @@
 #include "lightresource.h"
 
 #ifdef ARDUINO
-#include "WiFiex.h"
+/* Set these to your desired credentials. */
+const char *softap_ssid = "ESPap";
+const char *softap_password = "thereisnospoon";
 #endif // ARDUINO
 
 const char led1Name[] = "led1";
@@ -22,15 +24,27 @@ LightResource led2(led2Name,LED2,true,&coap);
 
 void setup() {
 #ifdef ARDUINO
-    connectToWiFi();
-#endif // ARDUINO
+    pinMode(BUTTON, INPUT);
+
     coap.begin(); // TODO: check if success
+#endif // ARDUINO
+}
+
+void updateResources() {
+#ifdef ARDUINO
+    if (digitalRead(BUTTON)==HIGH) {
+        WiFi.softAP(softap_ssid, softap_password);
+    }
+    else {
+        // TODO: read from eeprom
+        Wifi.begin(ssid,pass);
+    }
+#endif // ARDUINO
 }
 
 // TODO: listen for hw button
 void loop() {
-    // TODO: check for network connection for arduino-based
-    // updateResources();
+    updateResources();
     coap.answerForObservations();
     coap.answerForIncomingRequest();
 }
