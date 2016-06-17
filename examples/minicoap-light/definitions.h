@@ -20,8 +20,8 @@
 // #define BUTTON 0 // GPIO 0 PIN 11
 
 //----ESP8266:------------
-// #define LED 1 // GPIO 1
-// #define BUTTON 2 // GPIO 2
+#define LED 1 // GPIO 1
+#define BUTTON 2 // GPIO 2
 
 //----General arduino with Ethernet Shield:----
 // TODO:

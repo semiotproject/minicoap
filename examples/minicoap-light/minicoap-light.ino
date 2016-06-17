@@ -3,6 +3,7 @@
 #include "lightresource.h"
 
 #ifdef ARDUINO
+#include <ESP8266WiFi.h>
 /* Set these to your desired credentials. */
 const char *softap_ssid = "ESPap";
 const char *softap_password = "thereisnospoon";
@@ -37,7 +38,8 @@ void updateResources() {
     }
     else {
         // TODO: read from eeprom
-        Wifi.begin(ssid,pass);
+        // WiFi.begin(ssid,pass);
+        printf("TODO: read from eeprom\n");
     }
 #endif // ARDUINO
 }

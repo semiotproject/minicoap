@@ -19,7 +19,6 @@ public:
 private:
     char config[MAXRESPLEN];
     StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& rootJson;
 };
 
 #endif // CONFIGRESOURCE_H

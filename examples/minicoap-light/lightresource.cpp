@@ -1,4 +1,7 @@
 #include "lightresource.h"
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif // ARDUINO
 
 LightResource::LightResource(const char *lightName, unsigned int connectedPin, bool isPwmSupported, MiniCoAP* coapServer):CoAPResource(coapServer)
 {
