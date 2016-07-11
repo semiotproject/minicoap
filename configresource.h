@@ -17,7 +17,7 @@ public:
     int getMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt);
     int putMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt);
 private:
-    char config[MAXRESPLEN];
+    char configjs[MAXRESPLEN];
     StaticJsonBuffer<200> jsonBuffer;
 };
 

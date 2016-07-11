@@ -6,13 +6,17 @@
 
 ConfigResource::ConfigResource(MiniCoAP *coapServer):CoAPResource(coapServer)
 {
-
+    resourcePath = {1,{"config"}};
+    memset(configjs,0,MAXRESPLEN);
+    strcpy(configjs,"\{\"@context\":\"\/config\/context\",\"wifi-name\":\"SSID\",\"wifi-password\":\"password\"\}");
 }
 
 int ConfigResource::getMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
 {
-    if (strlen(config)) {
-        return getServer()->coap_make_response(inpkt, outpkt, (uint8_t *)config, strlen(config), COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_APPLICATION_JSON);
+    if (strlen(configjs)) {
+        return getServer()->coap_make_response(inpkt, outpkt, (uint8_t 
+        *)configjs, strlen(configjs), COAP_RSPCODE_CONTENT, 
+COAP_CONTENTTYPE_APPLICATION_JSON);
     }
     else {
         return getServer()->coap_make_response(inpkt, outpkt, NULL, 0, COAP_RSPCODE_NOT_FOUND, COAP_CONTENTTYPE_APPLICATION_JSON);
@@ -28,17 +32,18 @@ int ConfigResource::putMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
     //    }
 #ifdef ARDUINO
     IPAddress host = getServer()->getCurrentSocket().host;
-    // FIXME: custom gatewayIP in combined mode
-    IPAddress softIP = WiFi.softAPIP();
-    if (host[0]==softIP[0] && host[1]==softIP[1] && host[2]==softIP[2])  {
-        memset(config,0,MAXRESPLEN);
+    // WIFI_OFF = 0, WIFI_STA = 1, WIFI_AP = 2, WIFI_AP_STA = 3
+    if (WiFi.getMode() == WIFI_STA)  {
+        memset(configjs,0,MAXRESPLEN);
         if (inpkt->payload.len<MAXRESPLEN);
-        memcpy(config,inpkt->payload.p,inpkt->payload.len);
-        JsonObject& rootJson = jsonBuffer.parseObject(config);
+        memcpy(configjs,inpkt->payload.p,inpkt->payload.len);
+        JsonObject& rootJson = jsonBuffer.parseObject(configjs);
         // TODO: save to EEPROM:
         if (rootJson.success()) {
             // (rootJson["wifi-name"],rootJson["wifi-password"]);
-            return getServer()->coap_make_response(inpkt, outpkt, (uint8_t *)config, strlen(config), COAP_RSPCODE_CHANGED, COAP_CONTENTTYPE_TEXT_PLAIN);
+            return getServer()->coap_make_response(inpkt, outpkt, (uint8_t 
+            *)configjs, strlen(configjs), COAP_RSPCODE_CHANGED, 
+COAP_CONTENTTYPE_TEXT_PLAIN);
           }
     }
 #endif // ARDUINO

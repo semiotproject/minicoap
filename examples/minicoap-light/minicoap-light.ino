@@ -1,52 +1,43 @@
 #include "minicoap.h"
 #include "wellknowncoreresource.h"
 #include "lightresource.h"
+#include "configresource.h"
 
-#ifdef ARDUINO
 #include <ESP8266WiFi.h>
 /* Set these to your desired credentials. */
-const char *softap_ssid = "ESPap";
-const char *softap_password = "thereisnospoon";
-#endif // ARDUINO
+const char *ssid = "SSID";
+const char *password = "password";
 
 const char led1Name[] = "led1";
-const char led2Name[] = "led2";
-const char wnkAnswer[] = "</led1>,<led2>";
+const char wnkAnswer[] = "<\/led1>,<\/config>"; // TODO: scheme
 
 MiniCoAP coap;
 WellKnownCoreResource wnkRes(wnkAnswer,&coap);
-#ifdef LED1
-LightResource led1(led1Name,LED1,true,&coap);
-#endif // LED1
-
-#ifdef LED2
-LightResource led2(led2Name,LED2,true,&coap);
-#endif // LED2
+LightResource led1(led1Name,D6,true,&coap);
+ConfigResource conf(&coap);
 
 void setup() {
-#ifdef ARDUINO
-    pinMode(BUTTON, INPUT);
-
-    coap.begin(); // TODO: check if success
-#endif // ARDUINO
-}
-
-void updateResources() {
-#ifdef ARDUINO
-    if (digitalRead(BUTTON)==HIGH) {
-        WiFi.softAP(softap_ssid, softap_password);
-    }
-    else {
-        // TODO: read from eeprom
-        // WiFi.begin(ssid,pass);
-        printf("TODO: read from eeprom\n");
-    }
-#endif // ARDUINO
+    Serial.begin(115200);
+    delay(10);
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print("~");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");  
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+    coap.begin();
 }
 
 // TODO: listen for hw button
 void loop() {
-    updateResources();
+    // change WiFi.mode
     coap.answerForObservations();
     coap.answerForIncomingRequest();
 }
