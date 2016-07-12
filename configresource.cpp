@@ -31,18 +31,22 @@ int ConfigResource::putMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt)
     //    "wifi-password": "blahbalh"
     //    }
 #ifdef ARDUINO
-    IPAddress host = getServer()->getCurrentSocket().host;
+    Serial.print("mode: ");
+    Serial.println(WiFi.getMode(),DEC);
     // WIFI_OFF = 0, WIFI_STA = 1, WIFI_AP = 2, WIFI_AP_STA = 3
-    if (WiFi.getMode() == WIFI_STA)  {
+    if (WiFi.getMode() == 1)  { // FIXME: 2
         memset(configjs,0,MAXRESPLEN);
         if (inpkt->payload.len<MAXRESPLEN);
         memcpy(configjs,inpkt->payload.p,inpkt->payload.len);
+        Serial.println(configjs);
         JsonObject& rootJson = jsonBuffer.parseObject(configjs);
         // TODO: save to EEPROM:
         if (rootJson.success()) {
             // (rootJson["wifi-name"],rootJson["wifi-password"]);
+            Serial.println("success:");
+            rootJson["wifi-name"].printTo(Serial);
             return getServer()->coap_make_response(inpkt, outpkt, (uint8_t 
-            *)configjs, strlen(configjs), COAP_RSPCODE_CHANGED, 
+            *)configjs, strlen(configjs), COAP_RSPCODE_CHANGED,
 COAP_CONTENTTYPE_TEXT_PLAIN);
           }
     }
