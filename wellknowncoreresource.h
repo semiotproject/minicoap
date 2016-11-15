@@ -2,15 +2,26 @@
 #define WELLKNOWNCORERESOURCE_H
 
 #include "coapresource.h"
+#include <Arduino.h>
 
 class WellKnownCoreResource : public CoAPResource
 {
 public:
-    WellKnownCoreResource(const char *answer, MiniCoAP *coapServer);
-    int getMethod(const coap_packet_t *inpkt, coap_packet_t *outpkt);
+    WellKnownCoreResource();
+    void addResource(String resString);
+    char *getUri();
+    int getMethod(uint8_t *payloadValue, int payloadLen,
+                              CoapPDU::ContentFormat contentFormat);
+    bool getMethodIsPrivate();
+    CoapPDU::Code getCode();
+    uint8_t* getPayloadPointer();
+    int getPayloadLength();
+    CoapPDU::ContentFormat getContentFormat();
+    String getSleepyAnswer();
 private:
-    const coap_endpoint_path_t path_well_known_core = {2, {".well-known", "core"}};
-    const char *_answer;
+    char *wellKnownCoreUri = "/.well-known/core";
+    String answer;
+    String sleepyAnswer;
 };
 
 #endif // WELLKNOWNCORERESOURCE_H

@@ -1,13 +1,22 @@
-#ifndef COAPRESOURCE_H
-#define COAPRESOURCE_H
+#ifndef SEMIOTRESOURCE_H
+#define SEMIOTRESOURCE_H
 
-#include <stdint.h>
-#include <cantcoap.h>
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h> // TODO: platform-agnostic
+#include "coapresource.h"
 
-class CoAPResource
+
+#define JS_BUF_LEN 1000 // FIXME
+
+class SemIoTResource : public CoAPResource
 {
 public:
-    CoAPResource();
+    SemIoTResource();
+    static String getContextObject();
+    static String getHostnameUrl();
+    static String getIdentifier();
+    // TODO: get payload from string
     virtual char *getUri();
     virtual int setUri(char *uri);
     virtual CoapPDU::Code getCode();
@@ -35,6 +44,27 @@ public:
 
     virtual bool isObservable();
     virtual bool isResourceChanged();
+
+protected:
+    static String identifierObject;
+    static String identifierPredicate;
+    static String deviceLabelPredicate;
+    static String deviceLabelObject;
+    static String locationLabelPredicate;
+    static String locationLabelObject;
+
+    static String hostNameUrl;
+
+    static String protocolPrefix;
+
+    static String contextPredicate;
+    String _contextObject = "http://external/doc#";
+
+    static String idPredicate;
+    String _idObject;
+
+    static String typePredicate;
+    String _typeObject;
 };
 
-#endif // COAPRESOURCE_H
+#endif // SEMIOTRESOURCE_H
