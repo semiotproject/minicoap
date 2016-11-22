@@ -18,7 +18,7 @@ WellKnownCoreResource::WellKnownCoreResource():CoAPResource()
 void WellKnownCoreResource::addResource(String resString)
 {
     answer += resString;
-    sleepyAnswer = answer;
+    sleepyAnswer += resString;
 }
 
 char *WellKnownCoreResource::getUri()

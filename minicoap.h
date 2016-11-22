@@ -8,6 +8,7 @@
 #include "systemresource.h"
 #include "configresource.h"
 
+#define COAP_PORT 5683
 #define COAPBUFLEN 500
 #define URIBUFLEN 300
 #define resourcesListSize 4
@@ -38,7 +39,7 @@ private:
     char uriBuf[URIBUFLEN];
     int uriBufLen;
     int receivePacket();
-    void sendPacket();
+    void sendPacket(bool broadcast = false);
 
     WellKnownCoreResource *wnkRes;
     void addResToWnk(CoAPResource *resource);

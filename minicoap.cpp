@@ -122,10 +122,16 @@ int MiniCoAP::receivePacket()
     return -1;
 }
 
-void MiniCoAP::sendPacket()
+void MiniCoAP::sendPacket(bool broadcast)
 {
     Serial.println("sending packet");
-    udp.beginPacket(udp.remoteIP(), udp.remotePort());
+    if (broadcast) {
+        IPAddress brIP = ~WiFi.subnetMask() | WiFi.gatewayIP();
+        udp.beginPacket(brIP, COAP_PORT);
+    }
+    else {
+        udp.beginPacket(udp.remoteIP(), udp.remotePort());
+    }
     udp.write(responsePacket->getPDUPointer(),responsePacket->getPDULength());
     udp.endPacket();
     Serial.println("sending packet is ok");
@@ -276,15 +282,15 @@ int MiniCoAP::handleSleepy()
     if (sendSleepy()!=0) {
         registerSleepy();
     }
-    ESP.deepSleep(confRes->getSleepIntervalMs()*1000); // deepSleep arg in mcs
+    // !!
+    delay(confRes->getSleepIntervalMs()*1000);
+    // ESP.deepSleep(confRes->getSleepIntervalMs()*1000); // deepSleep arg in mcs
     return 0;
 }
 
 int MiniCoAP::registerSleepy()
 {
     // broadcast to: /.well-known/core?rt=core.rd-cache
-
-    IPAddress brIP = ~WiFi.subnetMask() | WiFi.gatewayIP();
 
     sleepyPacket = new CoapPDU();
     sleepyPacket->setVersion(1);
@@ -296,11 +302,21 @@ int MiniCoAP::registerSleepy()
     sleepyPacket->setCode(CoapPDU::COAP_GET);
     sleepyPacket->setURI(rdCacheDiscoverUri);
 
+    sendPacket(true);
+
     // parse core link: </rd-cache>;rt="core.rd-cache"
     // FIXME: receiving not only the first answer:
+
+    // TODO:
+    // while not parsed correctly wait for new coap answer
+
     if (waitForCoapAnswer()!=0) {
         return -1;
     }
+    // TODO: check for uri with the rt
+    // ;rt="core.rd-cache
+    // and parse it to rdCacheRegUri
+
     // FIXME: just reset sleepyPacket
     delete sleepyPacket;
     sleepyPacket = new CoapPDU();
@@ -315,7 +331,7 @@ int MiniCoAP::registerSleepy()
 
     // post core link: post: coap://<remote_socket>/rd?ep=identifier
     // Content-Format: 40
-    // Payload: </>, </temp>;rt="temperature"
+    // Payload: </>;ct=50, </temp>;rt="temperature";ct=50
 
     sleepyPacket->setVersion(1);
     // rnd1 = random(255);
@@ -329,6 +345,8 @@ int MiniCoAP::registerSleepy()
     String rdCacheRegPayload = wnkRes->getSleepyAnswer();
     sleepyPacket->setPayload((uint8_t*)rdCacheRegPayload.c_str(),
                              rdCacheRegPayload.length());
+
+    // TODO: send packet to
 
     // parse link 41 option:
     // 2.01 Created
@@ -350,8 +368,7 @@ int MiniCoAP::registerSleepy()
                 memcpy((uint8_t*)linkOpt,optP,optL);
                 char rdCacheUriBuf[URIBUFLEN];
                 // https://github.com/esp8266/Arduino/pull/2609
-                // TODO:
-                // sscanf((char*)linkOpt,"Link:%*s<%s>%*srel=\"http://w3id.org/semiot/coap/rd-cache\"",rdCacheUriBuf);
+                sscanf((char*)linkOpt,"Link:%*s<%s>%*srel=\"http://w3id.org/semiot/coap/rd-cache\"",rdCacheUriBuf);
                 rdCacheUri = String(rdCacheUriBuf);
                 if (rdCacheRegUri!="") {
                     confRes->setObservationUri(rdCacheUri);
@@ -369,10 +386,10 @@ int MiniCoAP::registerSleepy()
 int MiniCoAP::sendSleepy()
 {
     confRes->readFromFS();
-    bool confIsOk=true;
+    bool regIsOk=true;
     CoAPResource *resource;
     for (int r=0;r<resourcesCount;r++) {
-        if (!confIsOk) {
+        if (!regIsOk) {
             break;
         }
         resource = resourcesList[r];
@@ -391,6 +408,7 @@ int MiniCoAP::sendSleepy()
         sleepyPacket->setToken(&rnd1,1);
         sleepyPacket->setType(CoapPDU::COAP_NON_CONFIRMABLE);
         sleepyPacket->setCode(CoapPDU::COAP_POST);
+        // TODO concat obs uri and resource uri
         sleepyPacket->setURI((char*)confRes->getObservationUri().c_str()); // FIXME c_str()
         resource->getMethod(nullptr,0,CoapPDU::ContentFormat(0));
         sleepyPacket->setPayload(resource->getPayloadPointer(),
@@ -405,14 +423,17 @@ int MiniCoAP::sendSleepy()
 
         // wait for answer
         if (waitForCoapAnswer()!=0) {
-            confIsOk = false;
+            // TODO: check for answer responce code
+            regIsOk = false;
         }
     }
-    if (confIsOk) {
+    if (regIsOk) {
         return 0;
     }
     return -1;
 }
+
+// TODO: return coap answer code
 
 int MiniCoAP::waitForCoapAnswer()
 {
@@ -460,7 +481,7 @@ int MiniCoAP::begin(bool sleepy)
     isSleepy = sleepy;
     // https://github.com/esp8266/Arduino/issues/2189
     confRes->begin(isSleepy);
-    int u = udp.begin(5683);
+    int u = udp.begin(COAP_PORT);
 }
 
 int MiniCoAP::setButton(int pin)
