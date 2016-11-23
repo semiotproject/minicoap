@@ -13,6 +13,8 @@
 #define URIBUFLEN 300
 #define resourcesListSize 4
 
+// TODO: move SemIoTCoAP to child class
+
 class MiniCoAP
 {
 public:
@@ -20,6 +22,7 @@ public:
     int begin(bool sleepy = false);
     int setButton(int pin);
     int addResource(CoAPResource *resource);
+    int addResource(SemIoTResource *resource);
     int handleClient();
 private:
     bool isSleepy = false;

@@ -7,7 +7,7 @@ class HumidityResource : public SemIoTResource
 {
 public:
     HumidityResource();
-    char *getUri();
+    //char *getUri();
     int getMethod(uint8_t *payloadValue, int payloadLen,
                               CoapPDU::ContentFormat contentFormat);
     bool getMethodIsPrivate();
@@ -29,7 +29,7 @@ private:
     const char *locationPredicate = "location";
     const char *locationTypeObject = "Place";
 
-    char *uri = "/humidityValue";
+    // char *uri = "/humidityValue";
     String answer;
     void generateAnswer();
 };

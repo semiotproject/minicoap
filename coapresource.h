@@ -35,6 +35,8 @@ public:
 
     virtual bool isObservable();
     virtual bool isResourceChanged();
+protected:
+    char *uri;
 };
 
 #endif // COAPRESOURCE_H

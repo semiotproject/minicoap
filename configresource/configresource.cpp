@@ -3,9 +3,10 @@
 
 ConfigResource::ConfigResource()
 {
-    ap_ssid = "SMT_" + SemIoTResource::identifierObject;
+    SemIoTResource::uri = "/config";
+    ap_ssid = "SMT_" + getIdentifier();
     basicAuthString = sha1(configUserName+configPassword);
-    begin();
+    // begin();
 }
 
 void ConfigResource::setSleepy(bool sleepy)
@@ -68,10 +69,10 @@ int ConfigResource::getPayloadLength()
     return answer.length();
 }
 
-char *ConfigResource::getUri()
-{
-    return uri;
-}
+//char *ConfigResource::getUri()
+//{
+//    return uri;
+//}
 
 bool ConfigResource::getMethodIsPrivate()
 {

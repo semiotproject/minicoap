@@ -1,5 +1,6 @@
 #include "semiotresource.h"
 
+// some objects shared between resources
 String SemIoTResource::identifierObject = "00000";
 String SemIoTResource::identifierPredicate = "identifier";
 String SemIoTResource::deviceLabelPredicate = "deviceLabel";
@@ -14,7 +15,9 @@ String SemIoTResource::typePredicate = "@type";
 
 SemIoTResource::SemIoTResource()
 {
+    idObject = getUri();
     SemIoTResource::identifierObject = String(ESP.getChipId(),DEC);
+    SemIoTResource::deviceLabelObject = "SemIoT device #" + SemIoTResource::identifierObject;
 }
 
 String SemIoTResource::getContextObject()
@@ -44,17 +47,32 @@ String SemIoTResource::getHostnameUrl()
 
 String SemIoTResource::getIdentifier()
 {
-    return identifierObject;
+    return SemIoTResource::identifierObject;
+}
+
+char *SemIoTResource::getIdObject()
+{
+    return idObject;
 }
 
 char *SemIoTResource::getUri()
 {
+    return CoAPResource::uri;
+}
 
+char *SemIoTResource::getTypeObject()
+{
+    return typeObject;
 }
 
 int SemIoTResource::setUri(char *uri)
 {
+    // TODO:
+}
 
+char *SemIoTResource::getLinkPredicate()
+{
+    return linkPredicate;
 }
 
 CoapPDU::Code SemIoTResource::getCode()

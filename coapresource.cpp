@@ -7,7 +7,7 @@ CoAPResource::CoAPResource()
 
 char *CoAPResource::getUri()
 {
-    return 0;
+    return uri;
 }
 
 int CoAPResource::setUri(char *uri)

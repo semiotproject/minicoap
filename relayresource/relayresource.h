@@ -23,7 +23,7 @@ private:
     int _pin;
     bool isOn = true;
     CoapPDU::Code _code;
-    char *uri = "/relay";
+    //char *uri = "/relay";
     char *actionStatusPredicate = "actionStatus";
     char *actionStatusObject = "CompletedActionStatus";
     char *turnOnObject = "TurnOn";

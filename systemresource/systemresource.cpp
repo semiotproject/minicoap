@@ -3,13 +3,13 @@
 
 SystemResource::SystemResource()
 {
-
+    SemIoTResource::uri = "/";
 }
 
-char *SystemResource::getUri()
-{
-    return uri;
-}
+//char *SystemResource::getUri()
+//{
+//    return uri;
+//}
 
 int SystemResource::getMethod(uint8_t *payloadValue, int payloadLen, CoapPDU::ContentFormat contentFormat)
 {
@@ -38,9 +38,13 @@ int SystemResource::getPayloadLength()
     return answer.length();
 }
 
-void SystemResource::addObject(String predicate, String object)
+int SystemResource::addResource(SemIoTResource *resource)
 {
-    // TODO:
+    if (resourcesCount<MAXRESOURCESCOUNT) {
+        resourcesList[resourcesCount]=resource;
+        return ++resourcesCount;
+    }
+    return -1;
 }
 
 void SystemResource::generateAnswer()
@@ -59,6 +63,9 @@ void SystemResource::generateAnswer()
     JsonObject& locationJson = rootJson.createNestedObject(locationPredicate);
     locationJson[locationPredicate] = SemIoTResource::locationLabelObject;
     locationJson[SemIoTResource::typePredicate] = "Place"; // FIXME
-    rootJson[temperaturePredicate] = temperatureObject;
+    // separated resources:
+    for (int i=0; i<resourcesCount; i++) {
+        rootJson[resourcesList[i]->getLinkPredicate()] = resourcesList[i]->getUri();
+    }
     rootJson.printTo(answer);
 }

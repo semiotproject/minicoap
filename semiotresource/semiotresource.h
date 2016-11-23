@@ -15,10 +15,13 @@ public:
     SemIoTResource();
     static String getContextObject();
     static String getHostnameUrl();
-    static String getIdentifier();
+    String getIdentifier();
+    virtual char *getIdObject();
+    virtual char *getTypeObject();
     // TODO: get payload from string
     virtual char *getUri();
     virtual int setUri(char *uri);
+    virtual char *getLinkPredicate();
     virtual CoapPDU::Code getCode();
     virtual uint8_t* getPayloadPointer();
     virtual int getPayloadLength();
@@ -48,8 +51,10 @@ public:
 protected:
     static String identifierObject;
     static String identifierPredicate;
+
     static String deviceLabelPredicate;
     static String deviceLabelObject;
+
     static String locationLabelPredicate;
     static String locationLabelObject;
 
@@ -58,13 +63,15 @@ protected:
     static String protocolPrefix;
 
     static String contextPredicate;
-    String _contextObject = "http://external/doc#";
+    String contextObject = "http://external/doc#";
 
     static String idPredicate;
-    String _idObject;
+    char *idObject;
 
     static String typePredicate;
-    String _typeObject;
+    char *typeObject;
+
+    char *linkPredicate;
 };
 
 #endif // SEMIOTRESOURCE_H

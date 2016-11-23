@@ -2,12 +2,15 @@
 
 HumidityResource::HumidityResource()
 {
+    SemIoTResource::uri = "/humidityValue";
+    SemIoTResource::typeObject = "doc:HumidityValue";
+    SemIoTResource::linkPredicate = "humidity";
 }
 
-char *HumidityResource::getUri()
-{
-    return uri;
-}
+//char *HumidityResource::getUri()
+//{
+//    return uri;
+//}
 
 int HumidityResource::getMethod(uint8_t *payloadValue, int payloadLen, CoapPDU::ContentFormat contentFormat)
 {

@@ -2,14 +2,16 @@
 
 TemperatureResource::TemperatureResource()
 {
-    //_typeObject = "doc:TemperatureValue";
+    SemIoTResource::uri = "/temperatureValue";
+    SemIoTResource::typeObject = "doc:TemperatureValue";
+    SemIoTResource::linkPredicate = "temperature";
     SemIoTResource::deviceLabelObject = "SEMIOT TH-S #"+SemIoTResource::getIdentifier();
 }
 
-char *TemperatureResource::getUri()
-{
-    return uri;
-}
+//char *TemperatureResource::getUri()
+//{
+//    return SemIoTResource::uri;
+//}
 
 int TemperatureResource::getMethod(uint8_t *payloadValue, int payloadLen, CoapPDU::ContentFormat contentFormat)
 {
@@ -53,7 +55,7 @@ void TemperatureResource::generateAnswer()
     StaticJsonBuffer<JS_BUF_LEN> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
     root[SemIoTResource::contextPredicate] = getContextObject();
-    root[SemIoTResource::typePredicate] = typeObject;
+    root[SemIoTResource::typePredicate] = SemIoTResource::typeObject;
     root[valuePredicate] = value;
     root[unitCodePredicate] = unitCodeObject;
     /*

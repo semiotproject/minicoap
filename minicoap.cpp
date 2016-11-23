@@ -10,7 +10,6 @@ MiniCoAP::MiniCoAP()
     resourcesList[0] = wnkRes;
     resourcesList[1] = confRes;
     // rootRes is separated with empty uri
-
 }
 
 int MiniCoAP::addResource(CoAPResource *resource)
@@ -18,11 +17,17 @@ int MiniCoAP::addResource(CoAPResource *resource)
     if (resourcesCount<resourcesListSize) {
         resourcesList[resourcesCount] = resource;
         addResToWnk(resource);
-        // TODO: add resource to root
         resourcesCount++;
         return 0;
     }
     return -1;
+}
+
+int MiniCoAP::addResource(SemIoTResource *resource)
+{
+    if (addResource((CoAPResource*)resource)>=0) {
+        rootRes->addResource(resource);
+    }
 }
 
 int MiniCoAP::handleClient()
@@ -482,6 +487,7 @@ int MiniCoAP::begin(bool sleepy)
     // https://github.com/esp8266/Arduino/issues/2189
     confRes->begin(isSleepy);
     int u = udp.begin(COAP_PORT);
+    Serial.println("setup completed");
 }
 
 int MiniCoAP::setButton(int pin)

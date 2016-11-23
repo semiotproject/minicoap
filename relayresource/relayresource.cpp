@@ -2,7 +2,9 @@
 
 RelayResource::RelayResource()
 {
-    SemIoTResource::deviceLabelObject = "SEMIOT R-A #"+SemIoTResource::getIdentifier();
+    SemIoTResource::uri = "/relay";
+    SemIoTResource::linkPredicate = "relay";
+    // SemIoTResource::deviceLabelObject = "SEMIOT R-A #"+SemIoTResource::getIdentifier();
 }
 
 int RelayResource::getMethod(uint8_t *payloadValue, int payloadLen, CoapPDU::ContentFormat contentFormat)

@@ -23,7 +23,7 @@ public:
                               CoapPDU::ContentFormat contentFormat);
     uint8_t *getPayloadPointer();
     int getPayloadLength();
-    char *getUri();
+    //char *getUri();
     bool getMethodIsPrivate();
     bool putMethodIsPrivate();
     CoapPDU::Code getCode();
@@ -59,13 +59,13 @@ public:
 private:
     bool isSleepy = false;
     CoapPDU::Code currentCode;
-    char *uri = "/config";
+    //char *uri = "/config";
     char *typeObject = "Configuration";
     String sta_ssid = "SemIoT_RU";
     String sta_psk = "semiotproject";
     String ap_ssid;
     String ap_psk = "semiotproject";
-    String label = "SemIoT Device Prototype";
+    // String label = "SemIoT Device Prototype";
     String configUserName = "superuser";
     String configPassword = "superpassword";
 
